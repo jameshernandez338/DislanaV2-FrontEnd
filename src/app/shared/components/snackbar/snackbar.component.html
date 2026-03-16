@@ -1,0 +1,60 @@
+<div
+  class="fixed z-50 w-full max-w-sm px-4 transition-all duration-200"
+  [ngClass]="snackbarService.avoidBottomRight$()
+    ? 'left-0 top-4 sm:left-4 sm:top-4'
+    : 'inset-x-0 bottom-4 sm:inset-x-auto sm:right-4 sm:bottom-4'"
+>
+  <div
+    *ngIf="snackbarService.snackbar$() as snack"
+    role="status"
+    aria-live="polite"
+    class="overflow-hidden rounded-xl border bg-white shadow-xl transition-all duration-300"
+    [ngClass]="{
+      'border-emerald-200': snack.type === 'success',
+      'border-rose-200': snack.type === 'error',
+      'border-amber-200': snack.type === 'warning',
+      'border-slate-200': snack.type === 'info'
+    }"
+  >
+    <div class="flex items-start gap-3 px-4 py-3">
+      <div
+        class="mt-0.5"
+        [ngClass]="{
+          'text-emerald-600': snack.type === 'success',
+          'text-rose-600': snack.type === 'error',
+          'text-amber-600': snack.type === 'warning',
+          'text-slate-600': snack.type === 'info'
+        }"
+      >
+        <lucide-icon
+          [name]="icons[snack.type]"
+          class="h-5 w-5"
+        ></lucide-icon>
+      </div>
+
+      <p class="flex-1 text-sm leading-5 text-slate-800">{{ snack.message }}</p>
+
+      <button
+        type="button"
+        (click)="snackbarService.clear()"
+        class="text-slate-400 transition hover:text-slate-700"
+        aria-label="Cerrar notificacion"
+      >
+        <lucide-icon [name]="icons.close" class="h-4 w-4"></lucide-icon>
+      </button>
+    </div>
+
+    <div class="h-1 w-full bg-slate-100">
+      <div
+        class="h-full"
+        [ngClass]="{
+          'bg-emerald-500': snack.type === 'success',
+          'bg-rose-500': snack.type === 'error',
+          'bg-amber-500': snack.type === 'warning',
+          'bg-slate-500': snack.type === 'info'
+        }"
+        [style.animation]="'snackbarProgress ' + snack.duration + 'ms linear forwards'"
+      ></div>
+    </div>
+  </div>
+</div>

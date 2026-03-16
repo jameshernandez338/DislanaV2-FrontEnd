@@ -1,0 +1,103 @@
+<header class="sticky top-0 z-30 bg-white border-b border-slate-200">
+  <div class="max-w-[1280px] mx-auto px-4 md:px-6">
+    <div class="relative h-20 flex items-center gap-4">
+      <button
+        type="button"
+        class="md:hidden text-slate-900 hover:text-blue-600"
+        (click)="toggleMobileMenu()"
+        aria-label="Abrir menu"
+      >
+        <lucide-icon [name]="icons.menu" class="w-5 h-5"></lucide-icon>
+      </button>
+
+      <nav class="hidden md:flex items-center justify-center gap-8 text-lg absolute left-1/2 -translate-x-1/2 whitespace-nowrap">
+        @for (menu of menus; track menu.id) {
+          <a
+            [routerLink]="menu.route"
+            class="flex items-center gap-1.5 text-[17px] transition whitespace-nowrap shrink-0"
+            [ngClass]="menu.active ? 'text-blue-600' : 'text-slate-900 hover:text-slate-700'"
+          >
+            <lucide-icon [name]="icons[menu.icon]" class="w-4 h-4"></lucide-icon>
+            <span>{{ menu.label }}</span>
+          </a>
+        }
+      </nav>
+
+      <div class="ml-auto flex items-center gap-5">
+        <button
+          type="button"
+          (click)="userToggle.emit()"
+          class="relative text-slate-900 hover:text-blue-600"
+          aria-label="Menu de usuario"
+        >
+          <lucide-icon [name]="icons.user" class="w-5 h-5"></lucide-icon>
+        </button>
+
+        <button
+          type="button"
+          (click)="cartToggle.emit()"
+          class="relative text-slate-900 hover:text-blue-600"
+          aria-label="Abrir carrito"
+        >
+          <lucide-icon [name]="icons.cart" class="w-5 h-5"></lucide-icon>
+          <span
+            class="absolute -top-2 -right-2 min-w-5 h-5 px-1 rounded-full bg-orange-500 text-white text-xs font-semibold flex items-center justify-center"
+          >
+            {{ cartCount }}
+          </span>
+        </button>
+
+        @if (showUserMenu) {
+          <div class="absolute top-16 right-4 md:right-6 w-56 bg-white rounded-xl border border-slate-200 shadow-xl p-3">
+            <p class="text-sm text-slate-500">Conectado como</p>
+            <p class="text-sm font-semibold text-slate-900 truncate mb-3">{{ userName }}</p>
+            <button
+              type="button"
+              (click)="logout.emit()"
+              class="w-full text-left px-3 py-2 rounded-lg bg-slate-900 text-white text-sm hover:bg-black"
+            >
+              Cerrar sesion
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</header>
+
+@if (showMobileMenu) {
+  <button
+    type="button"
+    class="fixed inset-0 bg-black/40 z-40 md:hidden"
+    (click)="closeMobileMenu()"
+    aria-label="Cerrar menu"
+  ></button>
+}
+
+<aside
+  class="fixed top-0 left-0 h-full w-[280px] bg-white z-50 shadow-2xl transition-transform duration-300 md:hidden"
+  [ngClass]="showMobileMenu ? 'translate-x-0' : '-translate-x-full'"
+>
+  <div class="h-full flex flex-col">
+    <div class="p-4 border-b border-slate-200 flex items-center justify-between">
+      <p class="text-base font-semibold">Menu</p>
+      <button type="button" (click)="closeMobileMenu()" class="text-slate-500 hover:text-slate-900">
+        <lucide-icon [name]="icons.close" class="w-5 h-5"></lucide-icon>
+      </button>
+    </div>
+
+    <nav class="p-4 flex flex-col gap-4">
+      @for (menu of menus; track menu.id) {
+        <a
+          [routerLink]="menu.route"
+          (click)="closeMobileMenu()"
+          class="flex items-center gap-2 text-sm transition"
+          [ngClass]="menu.active ? 'text-blue-600' : 'text-slate-900 hover:text-slate-700'"
+        >
+          <lucide-icon [name]="icons[menu.icon]" class="w-4 h-4"></lucide-icon>
+          <span>{{ menu.label }}</span>
+        </a>
+      }
+    </nav>
+  </div>
+</aside>

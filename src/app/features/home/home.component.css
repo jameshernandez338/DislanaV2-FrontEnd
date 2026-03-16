@@ -1,0 +1,44 @@
+.product-title-wrapper {
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.product-title {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-align: center;
+}
+
+.scroll-inner {
+  display: inline-block;
+  white-space: nowrap;
+  transform: translateX(0);
+}
+
+.product-title.animate .scroll-inner {
+  animation-name: scroll-left;
+  animation-duration: 11s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.product-title-wrapper:hover .scroll-inner {
+  animation-play-state: paused;
+}
+
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0);
+  }
+
+  18.18% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-100%);
+  }
+}

@@ -1,0 +1,168 @@
+<div class="max-w-[1280px] mx-auto px-4 md:px-6 py-6 md:py-8">
+  <section class="grid gap-10 lg:grid-cols-[minmax(0,1.32fr)_minmax(390px,1.02fr)] items-start">
+    <div class="grid gap-4 md:grid-cols-[92px_minmax(0,1fr)]">
+      <div class="order-2 md:order-1 flex md:flex-col gap-3">
+        @for (image of productGallery; track image) {
+          <button
+            type="button"
+            (click)="selectImage(image)"
+            class="w-[88px] h-[104px] border transition overflow-hidden"
+            [ngClass]="productImage === image ? 'border-slate-900' : 'border-slate-200 opacity-70 hover:opacity-100'"
+          >
+            <img [src]="image" [alt]="productReference" class="w-full h-full object-cover" />
+          </button>
+        }
+      </div>
+
+      <div class="order-1 md:order-2 bg-[#d8d8d8]">
+        <img [src]="productImage" [alt]="productReference" class="w-full h-[420px] md:h-[540px] object-cover" />
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      <div class="space-y-2">
+        <h1 class="text-[clamp(1.8rem,4vw,1.8rem)] leading-none font-semibold tracking-tight text-[#0f1a2c]">
+          {{ productReference }}
+        </h1>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <p class="text-[1.4rem] leading-none text-[#ed1c24]">{{ productPrice }}</p>
+          <p class="text-md text-slate-500 line-through">{{ productPreviousPrice }}</p>
+          <span class="bg-[#ed1c24] text-white text-sm font-semibold px-3 py-1">{{ productDiscount }}</span>
+        </div>
+      </div>
+
+      <div class="bg-[#efefef] rounded-[4px] px-4 py-5 md:px-6 md:py-5 text-[#141414]">
+        <div class="text-[0.9rem]">
+          @for (metric of productMetrics; track metric.label) {
+            <p>{{ metric.label }}: {{ metric.value }}</p>
+          }
+        </div>
+
+        <div class="mt-8 space-y-6">
+          <p class="text-[1.1rem] leading-tight uppercase text-[#101827]">
+            {{ productDescription }}
+          </p>
+          <p class="text-[1rem] leading-none text-[#101827] mt-2">{{ productAvailability }}</p>
+        </div>
+
+        <div class="mt-2 grid gap-6 md:grid-cols-2">
+          @for (inventory of productInventory; track inventory.label) {
+            <div [ngClass]="inventory.tone === 'danger' ? 'text-[#ed1c24]' : 'text-[#101827]'">
+              <p class="text-[0.9rem]">{{ inventory.label }}: {{ inventory.value }}</p>
+              @if (inventory.tone === 'danger') {
+                <p class="text-[0.9rem] leading-none mt-1">{{ productQualityPrice }}</p>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="mt-4 grid gap-6 md:grid-cols-2">
+          <label class="block">
+            <span class="block text-[0.8rem] mb-2">Cantidad:</span>
+            <input
+              [(ngModel)]="quantityA"
+              type="number"
+              min="0"
+              class="w-full h-12 border border-slate-300 bg-white px-4 text-xl text-slate-900 focus:outline-none"
+            />
+          </label>
+
+          <label class="block">
+            <span class="block text-[0.8rem] mb-2 text-[#ed1c24]">Cantidad:</span>
+            <input
+              [(ngModel)]="quantityB"
+              type="number"
+              min="0"
+              class="w-full h-12 border border-slate-300 bg-white px-4 text-xl text-slate-900 focus:outline-none"
+            />
+          </label>
+        </div>
+
+        <a
+          [href]="technicalSheetUrl"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex mt-6 text-[1rem] text-slate-400 underline underline-offset-4 hover:text-slate-700"
+        >
+          Ficha tecnica
+        </a>
+      </div>
+
+      <button
+        type="button"
+        (click)="addToCart()"
+        class="w-full h-14 bg-[#141b2d] text-white text-[1.1rem] font-semibold tracking-wide hover:bg-[#0e1524] transition"
+      >
+        Pedir
+      </button>
+    </div>
+  </section>
+
+  <section class="mt-12 grid">
+    <article class="rounded-[4px] bg-white border border-slate-200 px-6 py-7">
+      <div class="flex items-center justify-between gap-4 mb-6">
+        <h2 class="text-2xl md:text-2xl font-semibold text-[#0f1a2c]">Especificaciones del producto</h2>
+      </div>
+
+      <div class="grid gap-4 md:grid-cols-3">
+        @for (specification of specifications; track specification.label) {
+          <div class="border border-slate-200 rounded-[4px] px-4 py-4">
+            <p class="text-xs uppercase tracking-[0.25em] text-slate-400 mb-2">{{ specification.label }}</p>
+            <p class="text-base leading-6 text-slate-700">{{ specification.value }}</p>
+          </div>
+        }
+      </div>
+    </article>
+  </section>
+
+  <section class="mt-12">
+    <div class="flex items-center justify-between gap-4 mb-6">
+      <div>
+        <p class="text-xs uppercase tracking-[0.35em] text-slate-400 mb-2">Relacionados</p>
+        <h2 class="text-2xl md:text-2xl font-semibold text-[#0f1a2c]">Productos homologos</h2>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          (click)="previousSimilar()"
+          [disabled]="!canGoBack"
+          class="w-11 h-11 border border-slate-300 bg-white text-slate-700 disabled:opacity-40"
+        >
+          <
+        </button>
+        <button
+          type="button"
+          (click)="nextSimilar()"
+          [disabled]="!canGoForward"
+          class="w-11 h-11 border border-slate-300 bg-white text-slate-700 disabled:opacity-40"
+        >
+          >
+        </button>
+      </div>
+    </div>
+
+    <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+      @for (item of visibleSimilarProducts; track item.descripcionItem) {
+        <a
+          [routerLink]="getProductRoute(item)"
+          class="group bg-white border border-slate-200 rounded-[4px] overflow-hidden hover:shadow-lg transition"
+        >
+          <div class="bg-slate-100">
+            <img [src]="getProductImage(item)" [alt]="item.descripcionItem" class="w-full h-72 object-cover" />
+          </div>
+          <div class="px-5 py-5">
+            <p class="text-xs uppercase tracking-[0.3em] text-slate-400 mb-2">Referencia</p>
+            <h3 class="text-xl font-semibold text-[#0f1a2c]">{{ item.descripcionItem }}</h3>
+            <p class="mt-2 text-sm text-slate-500">{{ item.detalle || 'Producto de linea' }}</p>
+            <div class="mt-5 flex items-center justify-between gap-4">
+              <span class="text-sm text-slate-500">Disponible {{ item.disponible || 0 }} mtrs</span>
+              <strong class="text-lg">{{ getProductPrice(item) }}</strong>
+            </div>
+          </div>
+        </a>
+      }
+    </div>
+  </section>
+</div>

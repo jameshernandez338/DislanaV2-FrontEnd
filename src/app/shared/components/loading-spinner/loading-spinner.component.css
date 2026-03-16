@@ -1,0 +1,43 @@
+.spinner-card {
+  animation: spinnerFadeIn 180ms ease-out;
+}
+
+.spinner-ring-active {
+  animation: spinnerRotate 0.9s linear infinite;
+}
+
+.spinner-dot {
+  animation: spinnerPulse 1.1s ease-in-out infinite;
+}
+
+@keyframes spinnerRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spinnerPulse {
+  0%,
+  100% {
+    transform: scale(0.7);
+    opacity: 0.65;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes spinnerFadeIn {
+  from {
+    transform: translateY(4px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

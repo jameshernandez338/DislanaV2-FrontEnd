@@ -1,0 +1,20 @@
+@if (show) {
+  <div
+    class="fixed inset-0 z-[100] bg-slate-950/45 backdrop-blur-[2px] flex items-center justify-center p-4"
+    role="status"
+    aria-live="polite"
+    aria-busy="true"
+  >
+    <div class="spinner-card w-full max-w-[240px] rounded-2xl border border-white/50 bg-white/95 shadow-2xl">
+      <div class="px-6 pt-6 pb-5 flex flex-col items-center">
+        <div class="relative w-14 h-14">
+          <div class="spinner-ring absolute inset-0 rounded-full border-[3px] border-slate-200"></div>
+          <div class="spinner-ring-active absolute inset-0 rounded-full border-[3px] border-transparent border-t-slate-900 border-r-slate-700"></div>
+          <div class="spinner-dot absolute left-1/2 top-1/2 w-2.5 h-2.5 -ml-[5px] -mt-[5px] rounded-full bg-slate-900"></div>
+        </div>
+
+        <p class="mt-4 text-sm font-medium tracking-wide text-slate-700">{{ message }}</p>
+      </div>
+    </div>
+  </div>
+}
