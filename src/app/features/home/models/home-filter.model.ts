@@ -18,12 +18,6 @@ export interface FilterGroup {
   options: FilterOption[];
 }
 
-export interface ProductStatusRow {
-  documento: string;
-  fecha: string;
-  cantidad: number;
-}
-
 export interface ProductListItem {
   codigoItem: string;
   descripcionItem: string;
@@ -42,6 +36,4 @@ export interface ProductListItem {
   detalle: string;
   separado: number;
   pendiente: number;
-  pedidosPendientes?: ProductStatusRow[];
-  pendientesPorFacturar?: ProductStatusRow[];
 }

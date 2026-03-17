@@ -74,7 +74,7 @@ export class LoginComponent {
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (res) => {
-          this.authService.setSession(res.token);
+          this.authService.setSession(res.token, res.fullName);
           this.router.navigate(['/home']);
         },
         error: (err) => {

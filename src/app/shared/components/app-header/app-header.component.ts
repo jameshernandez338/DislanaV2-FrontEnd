@@ -20,7 +20,7 @@ export class AppHeaderComponent {
   @Input() menus: HeaderMenuItem[] = [];
   @Input() cartCount = 0;
   @Input() showUserMenu = false;
-  @Input() userName = 'Usuario';
+  @Input() userName = '';
   @Output() userToggle = new EventEmitter<void>();
   @Output() logout = new EventEmitter<void>();
   @Output() cartToggle = new EventEmitter<void>();

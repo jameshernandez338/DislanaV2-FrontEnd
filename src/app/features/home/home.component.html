@@ -310,7 +310,7 @@
             <div class="mb-3 flex items-center justify-between gap-3">
               <h3 class="text-[1.35rem] font-medium text-[#0f1a2c]">Pedidos Pendientes</h3>
               <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold tracking-wide text-slate-600">
-                {{ product.separado || 0 }} MTRS
+                {{ product.pendiente || 0 }} MTRS
               </span>
             </div>
 
@@ -321,11 +321,19 @@
                 <span class="text-right">Cantidad</span>
               </div>
 
-              @if (getPendingOrders(product).length > 0) {
-                @for (row of getPendingOrders(product); track row.documento + row.fecha + row.cantidad) {
+              @if (loadingCommittedStock) {
+                <div class="border-t border-slate-200 px-4 py-6 text-sm text-slate-500">
+                  Consultando inventario comprometido...
+                </div>
+              } @else if (committedStockLoadFailed) {
+                <div class="border-t border-slate-200 px-4 py-6 text-sm text-rose-600">
+                  No fue posible cargar los pedidos pendientes.
+                </div>
+              } @else if (getPendingOrders().length > 0) {
+                @for (row of getPendingOrders(); track row.documento + row.fecha + row.cantidad) {
                   <div class="grid grid-cols-[1.1fr_1fr_0.8fr] items-center border-t border-slate-200 px-4 py-3 text-sm text-slate-700 even:bg-slate-50/70">
                     <span>{{ row.documento }}</span>
-                    <span>{{ row.fecha }}</span>
+                    <span>{{ formatCommittedStockDate(row.fecha) }}</span>
                     <span class="text-right">{{ row.cantidad }}</span>
                   </div>
                 }
@@ -341,7 +349,7 @@
             <div class="mb-3 flex items-center justify-between gap-3">
               <h3 class="text-[1.35rem] font-medium text-[#0f1a2c]">Pendiente por facturar</h3>
               <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold tracking-wide text-slate-600">
-                {{ product.pendiente || 0 }} MTRS
+                {{ product.separado || 0 }} MTRS
               </span>
             </div>
 
@@ -352,11 +360,19 @@
                 <span class="text-right">Cantidad</span>
               </div>
 
-              @if (getPendingInvoices(product).length > 0) {
-                @for (row of getPendingInvoices(product); track row.documento + row.fecha + row.cantidad) {
+              @if (loadingCommittedStock) {
+                <div class="border-t border-slate-200 px-4 py-6 text-sm text-slate-500">
+                  Consultando inventario comprometido...
+                </div>
+              } @else if (committedStockLoadFailed) {
+                <div class="border-t border-slate-200 px-4 py-6 text-sm text-rose-600">
+                  No fue posible cargar los pendientes por facturar.
+                </div>
+              } @else if (getPendingInvoices().length > 0) {
+                @for (row of getPendingInvoices(); track row.documento + row.fecha + row.cantidad) {
                   <div class="grid grid-cols-[1.1fr_1fr_0.8fr] items-center border-t border-slate-200 px-4 py-3 text-sm text-slate-700 even:bg-slate-50/70">
                     <span>{{ row.documento }}</span>
-                    <span>{{ row.fecha }}</span>
+                    <span>{{ formatCommittedStockDate(row.fecha) }}</span>
                     <span class="text-right">{{ row.cantidad }}</span>
                   </div>
                 }
@@ -372,4 +388,12 @@
     </div>
   }
 
-<app-loading-spinner [show]="loadingFilters()" message="Cargando"></app-loading-spinner>
+<app-loading-spinner
+  [show]="loadingFilters() || loadingCommittedStock"
+  [message]="loadingCommittedStock ? 'Consultando inventario comprometido...' : 'Cargando'"
+></app-loading-spinner>
+<app-whatsapp-button
+  phone="573124578522"
+  message="Hola, necesito ayuda con los productos."
+  label="Contactar por WhatsApp"
+></app-whatsapp-button>

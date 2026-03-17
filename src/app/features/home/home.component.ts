@@ -1,13 +1,18 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { finalize, forkJoin } from 'rxjs';
 import { LucideAngularModule, Ruler, Search, X } from 'lucide-angular';
 import { ProductService } from '@core/services/product.service';
+import { StockService } from '@core/services/stock.service';
+import { SnackbarService } from '@core/services/snackbar.service';
 import { OverflowAnimateDirective } from '@shared/directives/overflow-animate.directive';
 import { LoadingSpinnerComponent } from '@shared/components/loading-spinner/loading-spinner.component';
-import { FilterGroup, FilterOption, ProductFilterItem, ProductListItem, ProductStatusRow } from './models/home-filter.model';
+import { WhatsappButtonComponent } from '@shared/components/whatsapp-button/whatsapp-button.component';
+import { CommittedStockItem } from '../stock/models/stock.model';
+import { FilterGroup, FilterOption, ProductFilterItem, ProductListItem } from './models/home-filter.model';
 
 @Component({
   selector: 'app-home',
@@ -17,12 +22,14 @@ import { FilterGroup, FilterOption, ProductFilterItem, ProductListItem, ProductS
     RouterLink,
     LucideAngularModule,
     OverflowAnimateDirective,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    WhatsappButtonComponent
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly filtersType = 'home';
   private readonly pageSize = 15;
   private readonly filterFieldMap: Record<string, keyof ProductListItem> = {
@@ -46,7 +53,9 @@ export class HomeComponent implements OnInit {
   };
 
   constructor(
-    private productService: ProductService
+    private productService: ProductService,
+    private stockService: StockService,
+    private snackbarService: SnackbarService
   ) {}
 
   icons = { Search, X, Ruler };
@@ -68,6 +77,10 @@ export class HomeComponent implements OnInit {
   filteredProducts: ProductListItem[] = [];
   paginatedProducts: ProductListItem[] = [];
   selectedStatusProduct: ProductListItem | null = null;
+  pendingOrdersRows: CommittedStockItem[] = [];
+  pendingInvoicesRows: CommittedStockItem[] = [];
+  loadingCommittedStock = false;
+  committedStockLoadFailed = false;
   totalPages = 1;
   visiblePages: number[] = [1];
   visibleRangeStart = 0;
@@ -161,19 +174,79 @@ export class HomeComponent implements OnInit {
       return;
     }
 
+    this.loadingCommittedStock = true;
+    this.committedStockLoadFailed = false;
+    this.pendingOrdersRows = [];
+    this.pendingInvoicesRows = [];
     this.selectedStatusProduct = item;
+
+    this.stockService.getCommittedStock(item.codigoItem)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => {
+          this.loadingCommittedStock = false;
+        })
+      )
+      .subscribe({
+        next: (rows) => {
+          if (!this.selectedStatusProduct || this.selectedStatusProduct.codigoItem !== item.codigoItem) {
+            return;
+          }
+
+          this.pendingOrdersRows = this.getCommittedStockRows(rows, 'PEDIDOS PENDIENTES');
+          this.pendingInvoicesRows = this.getCommittedStockRows(rows, 'PENDIENTES POR FACTURAR');
+        },
+        error: (error) => {
+          console.error('No se pudo cargar el inventario comprometido.', error);
+          this.committedStockLoadFailed = true;
+          this.snackbarService.show('No fue posible consultar el inventario comprometido.', 'error');
+        }
+      });
   }
 
   closeStatusModal() {
     this.selectedStatusProduct = null;
+    this.pendingOrdersRows = [];
+    this.pendingInvoicesRows = [];
+    this.loadingCommittedStock = false;
+    this.committedStockLoadFailed = false;
   }
 
-  getPendingOrders(item: ProductListItem | null): ProductStatusRow[] {
-    return item?.pedidosPendientes ?? [];
+  getPendingOrders(): CommittedStockItem[] {
+    return this.pendingOrdersRows;
   }
 
-  getPendingInvoices(item: ProductListItem | null): ProductStatusRow[] {
-    return item?.pendientesPorFacturar ?? [];
+  getPendingInvoices(): CommittedStockItem[] {
+    return this.pendingInvoicesRows;
+  }
+
+  formatCommittedStockDate(value: string): string {
+    if (!value) {
+      return '';
+    }
+
+    const parsedDate = new Date(value);
+
+    if (Number.isNaN(parsedDate.getTime())) {
+      const normalizedValue = value.split('T')[0];
+      const parts = normalizedValue.split(/[-/]/);
+
+      if (parts.length === 3) {
+        const [year, month, day] = parts;
+
+        if (year.length === 4) {
+          return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
+        }
+      }
+
+      return value;
+    }
+
+    return new Intl.DateTimeFormat('es-CO', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }).format(parsedDate);
   }
 
   getProductPrice(item: ProductListItem): string {
@@ -368,6 +441,10 @@ export class HomeComponent implements OnInit {
       { length: pageEnd - adjustedStart + 1 },
       (_, index) => adjustedStart + index
     );
+  }
+
+  private getCommittedStockRows(items: CommittedStockItem[], group: string): CommittedStockItem[] {
+    return items.filter((item) => (item.grupo || '').trim().toUpperCase() === group);
   }
 
   private getComparableProductFieldValue(item: ProductListItem, field: string): string {

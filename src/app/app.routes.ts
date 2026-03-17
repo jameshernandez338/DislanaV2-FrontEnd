@@ -26,6 +26,12 @@ export const routes: Routes = [
             .then(m => m.HomeComponent)
       },
       {
+        path: 'cotizar',
+        loadComponent: () =>
+          import('./features/quote/pages/quote-list/quote-list.component')
+            .then(m => m.QuoteListComponent)
+      },
+      {
         path: 'productos/:id',
         loadComponent: () =>
           import('./features/products/pages/product-detail/product-detail.component')
@@ -36,6 +42,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/cart/pages/cart-page/cart-page.component')
             .then(m => m.CartPageComponent)
+      },
+      {
+        path: 'extracto-inventario',
+        loadComponent: () =>
+          import('./features/stock/pages/inventory-statement/inventory-statement.component')
+            .then(m => m.InventoryStatementComponent)
       }
     ]
   }

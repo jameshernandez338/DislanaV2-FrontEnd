@@ -14,7 +14,9 @@ export class AuthService {
   }
 
   private _token = signal<string | null>(null);
+  private _fullName = signal<string | null>(null);
   token$ = this._token.asReadonly();
+  fullName$ = this._fullName.asReadonly();
 
   constructor(
     private http: HttpClient,
@@ -22,8 +24,14 @@ export class AuthService {
     private appConfig: AppConfigService
   ) {
     const storedToken = localStorage.getItem('token');
+    const storedFullName = localStorage.getItem('fullName');
+
     if (storedToken) {
       this._token.set(storedToken);
+    }
+
+    if (storedFullName) {
+      this._fullName.set(storedFullName);
     }
   }
 
@@ -48,14 +56,18 @@ export class AuthService {
     );
   }
 
-  setSession(token: string) {
+  setSession(token: string, fullName: string) {
     localStorage.setItem('token', token);
+    localStorage.setItem('fullName', fullName);
     this._token.set(token);
+    this._fullName.set(fullName);
   }
 
   logout() {
     localStorage.removeItem('token');
+    localStorage.removeItem('fullName');
     this._token.set(null);
+    this._fullName.set(null);
     this.router.navigate(['/login']);
   }
 
@@ -65,5 +77,9 @@ export class AuthService {
 
   getToken(): string | null {
     return this._token();
+  }
+
+  getFullName(): string {
+    return this._fullName() || '';
   }
 }

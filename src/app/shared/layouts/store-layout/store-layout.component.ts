@@ -24,7 +24,6 @@ export class StoreLayoutComponent {
   icons = { X };
   showUserMenu = false;
   showCart = false;
-  userName = 'James 2Hernandez';
 
   get cartSubtotal(): string {
     return new Intl.NumberFormat('es-CO', {
@@ -42,13 +41,23 @@ export class StoreLayoutComponent {
     return this.cartService.items();
   }
 
+  get userName(): string {
+    return this.authService.getFullName();
+  }
+
   get headerMenus(): HeaderMenuItem[] {
     const currentUrl = this.router.url;
 
     return [
       { id: 'home', label: 'Home', icon: 'home', route: '/home', active: currentUrl.startsWith('/home') },
-      { id: 'quote', label: 'Cotizar', icon: 'quote', route: '/home' },
-      { id: 'inventory', label: 'Extracto Inventario', icon: 'inventory', route: '/home' },
+      { id: 'quote', label: 'Cotizar', icon: 'quote', route: '/cotizar', active: currentUrl.startsWith('/cotizar') },
+      {
+        id: 'inventory',
+        label: 'Extracto Inventario',
+        icon: 'inventory',
+        route: '/extracto-inventario',
+        active: currentUrl.startsWith('/extracto-inventario')
+      },
       { id: 'portfolio', label: 'Extracto Cartera', icon: 'portfolio', route: '/home' },
       { id: 'collection', label: 'Nueva Coleccion', icon: 'collection', route: '/home' }
     ];
