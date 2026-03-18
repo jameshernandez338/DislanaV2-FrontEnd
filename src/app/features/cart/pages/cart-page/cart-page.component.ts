@@ -7,13 +7,15 @@ import { CartItem, CartService } from '@core/services/cart.service';
 import { OrderPayload, OrderService } from '@core/services/order.service';
 import { SnackbarService } from '@core/services/snackbar.service';
 import { LoadingSpinnerComponent } from '@shared/components/loading-spinner/loading-spinner.component';
+import { AppCurrencyPipe } from '@shared/pipes/app-currency.pipe';
+import { AppNumberPipe } from '@shared/pipes/app-number.pipe';
 import { LucideAngularModule, X } from 'lucide-angular';
 import { finalize } from 'rxjs';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-cart-page',
-  imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule, LoadingSpinnerComponent],
+  imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule, LoadingSpinnerComponent, AppNumberPipe, AppCurrencyPipe],
   templateUrl: './cart-page.component.html'
 })
 export class CartPageComponent {
@@ -35,11 +37,11 @@ export class CartPageComponent {
     return this.cartService.items();
   }
 
-  get subtotal(): string {
-    return this.formatCurrency(this.cartService.subtotal);
+  get subtotal(): number {
+    return this.cartService.subtotal;
   }
 
-  get total(): string {
+  get total(): number {
     return this.subtotal;
   }
 
@@ -93,21 +95,5 @@ export class CartPageComponent {
           this.snackbarService.show('No fue posible enviar el pedido.', 'error');
         }
       });
-  }
-
-  getLinePrice(quantity: number, unitPrice: number): string {
-    return `${quantity} @ ${this.formatCurrency(unitPrice)}`;
-  }
-
-  formatMoney(value: number): string {
-    return this.formatCurrency(value);
-  }
-
-  private formatCurrency(value: number): string {
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
-      maximumFractionDigits: 0
-    }).format(value);
   }
 }

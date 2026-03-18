@@ -8,10 +8,12 @@ import { ProductService } from '@core/services/product.service';
 import { SnackbarService } from '@core/services/snackbar.service';
 import { ProductDetailDto, SimilarProductDto } from '../../models/product-detail.model';
 import { finalize } from 'rxjs';
+import { NumericInputDirective } from '@shared/directives/numeric-input.directive';
+import { NumberFormatService } from '@shared/services/number-format.service';
 
 @Component({
   selector: 'app-product-detail',
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, NumericInputDirective],
   templateUrl: './product-detail.component.html',
   styleUrl: './product-detail.component.css'
 })
@@ -23,7 +25,8 @@ export class ProductDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private productService: ProductService,
     private cartService: CartService,
-    private snackbarService: SnackbarService
+    private snackbarService: SnackbarService,
+    private numberFormatService: NumberFormatService
   ) {}
 
   loading = false;
@@ -169,11 +172,7 @@ export class ProductDetailComponent implements OnInit {
       return 'Pvp';
     }
 
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
-      maximumFractionDigits: 0
-    }).format(item.pvp);
+    return this.numberFormatService.formatCurrency(item.pvp);
   }
 
   getProductRoute(item: SimilarProductDto): string[] {
@@ -189,7 +188,6 @@ export class ProductDetailComponent implements OnInit {
       this.snackbarService.show('Debes ingresar una cantidad para pedir el producto.', 'warning');
       return;
     }
-
     const totalA = (this.quantityA || 0) * (this.product.pvpDescuento || 0);
     const totalB = (this.quantityB || 0) * (this.product.pvpB || 0);
     const total = totalA + totalB;
@@ -239,10 +237,6 @@ export class ProductDetailComponent implements OnInit {
   }
 
   private formatCurrency(value: number): string {
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
-      maximumFractionDigits: 0
-    }).format(value || 0);
+    return this.numberFormatService.formatCurrency(value || 0);
   }
 }

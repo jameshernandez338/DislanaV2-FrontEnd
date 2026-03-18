@@ -62,7 +62,8 @@
             <span class="block text-[0.8rem] mb-2">Cantidad:</span>
             <input
               [(ngModel)]="quantityA"
-              type="number"
+              type="text"
+              [appNumericInput]="2"
               min="0"
               class="w-full h-12 border border-slate-300 bg-white px-4 text-xl text-slate-900 focus:outline-none"
             />
@@ -72,7 +73,8 @@
             <span class="block text-[0.8rem] mb-2 text-[#ed1c24]">Cantidad:</span>
             <input
               [(ngModel)]="quantityB"
-              type="number"
+               type="text"
+              [appNumericInput]="2"
               min="0"
               class="w-full h-12 border border-slate-300 bg-white px-4 text-xl text-slate-900 focus:outline-none"
             />

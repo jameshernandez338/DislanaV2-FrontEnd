@@ -119,12 +119,11 @@
     aria-label="Cerrar detalle de pago"
   ></button>
 
-  <aside class="fixed right-0 top-0 z-50 h-full w-full max-w-[420px] border-l border-slate-200 bg-white shadow-2xl">
+  <aside class="fixed right-0 top-0 z-50 h-full w-full max-w-[420px] border-l border-slate-200 bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)] shadow-2xl">
     <div class="flex h-full flex-col">
-      <div class="flex items-start justify-between gap-4 border-b border-slate-200 px-5 py-5">
+      <div class="flex items-start justify-between gap-4 border-b border-slate-200 px-5 py-4">
         <div>
-          <p class="text-[0.72rem] font-semibold uppercase tracking-[0.16em] text-slate-400">Cotizar</p>
-          <h2 class="mt-1 text-xl font-semibold text-[#0f1a2c]">Detalle de pago</h2>
+          <h2 class="mt-1 text-[1.35rem] font-semibold tracking-[-0.03em] text-[#0f1a2c]">Resumen de pago</h2>
         </div>
         <button
           type="button"
@@ -136,40 +135,130 @@
         </button>
       </div>
 
-      <div class="flex-1 overflow-y-auto px-5 py-5">
-        <div class="space-y-4">
-          @for (item of selectedQuoteItems; track item.documento + item.codigo) {
-            <article class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <div class="flex items-start gap-3">
-                <img
-                  [src]="getImageUrl(item)"
-                  [alt]="item.descripcion"
-                  class="h-12 w-12 rounded-lg border border-slate-200 object-cover"
+      <div class="flex-1 px-5 py-4">
+        <section>
+          <div class="space-y-1.5 text-[0.95rem] leading-5">
+            <div class="flex items-center justify-between gap-4">
+              <span class="text-slate-700">Subtotal</span>
+              <span class="font-semibold text-slate-900">{{ formatCurrency(subtotalToPay) }}</span>
+            </div>
+
+            <div class="flex items-center justify-between gap-4">
+              <span class="text-slate-700">Descuentos</span>
+              <span class="font-medium text-slate-700">{{ formatCurrency(discountToPay) }}</span>
+            </div>
+
+            <div class="flex items-center justify-between gap-4">
+              <span class="text-slate-700">Impuesto IVA</span>
+              <span class="font-medium text-slate-700">{{ formatCurrency(ivaToPay) }}</span>
+            </div>
+
+            <div class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2">
+              <span class="text-slate-700">Rete Fuente</span>
+              <span class="text-right font-medium text-slate-700">{{ formatCurrency(reteFuenteToPay) }}</span>
+
+              <span class="text-slate-700">Rete IVA</span>
+              <span class="text-right font-medium text-slate-700">{{ formatCurrency(reteIvaToPay) }}</span>
+            </div>
+
+            <div class="flex items-center justify-between gap-4">
+              <label class="inline-flex items-center gap-2.5 text-[0.92rem] font-medium text-slate-800">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="applyReteIca"
+                  class="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400"
                 />
-                <div class="min-w-0 flex-1">
-                  <p class="truncate text-sm font-semibold text-slate-900">{{ item.descripcion }}</p>
-                  <p class="mt-1 text-xs uppercase tracking-[0.12em] text-slate-400">{{ item.codigo }}</p>
-                  <div class="mt-3 grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <span class="block text-[0.72rem] uppercase tracking-[0.12em] text-slate-400">Cantidad</span>
-                      <span class="font-medium text-slate-800">{{ formatNumber(item.cantidad) }}</span>
-                    </div>
-                    <div>
-                      <span class="block text-[0.72rem] uppercase tracking-[0.12em] text-slate-400">Valor</span>
-                      <span class="font-medium text-slate-800">{{ formatCurrency(item.precioTotal) }}</span>
-                    </div>
-                  </div>
-                </div>
+                <span>Aplicar Rete ICA</span>
+              </label>
+              <span class="font-semibold text-slate-900">{{ formatCurrency(reteIcaToPay) }}</span>
+            </div>
+
+            <div class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2">
+              <span class="inline-flex items-center gap-2 text-[#dc2626]">
+                <span>Cartera Vencida</span>
+                <lucide-icon [name]="icons.CircleAlert" class="h-4 w-4"></lucide-icon>
+              </span>
+              <span class="text-right font-medium text-[#dc2626]">{{ formatCurrency(carteraToPay) }}</span>
+
+              <span class="inline-flex items-center gap-2 text-[#dc2626]">
+                <span>APIN</span>
+                <lucide-icon [name]="icons.CircleAlert" class="h-4 w-4"></lucide-icon>
+              </span>
+              <span class="text-right font-medium text-[#dc2626]">{{ formatCurrency(apinToPay) }}</span>
+
+              <span class="inline-flex items-center gap-2 text-[#0f766e]">
+                <span>Saldo a Favor</span>
+                <lucide-icon [name]="icons.CircleAlert" class="h-4 w-4"></lucide-icon>
+              </span>
+              <span class="text-right font-medium text-[#0f766e]">{{ formatCurrency(saldoAFavorToPay) }}</span>
+            </div>
+
+            <div class="border border-dashed border-slate-200 px-3 py-2.5">
+              <div class="flex items-center justify-between gap-4">
+                <label class="inline-flex items-center gap-2.5 text-[0.92rem] font-medium text-slate-800">
+                  <input
+                    type="checkbox"
+                    [ngModel]="applyAbono"
+                    (ngModelChange)="onApplyAbonoChange($event)"
+                    class="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400"
+                  />
+                  <span>Realizar abono</span>
+                </label>
+                @if (applyAbono && isEditingAbono) {
+                  <input
+                    #abonoAmountInput
+                    type="text"
+                    inputmode="numeric"
+                    autocomplete="off"
+                    [ngModel]="abonoInput"
+                    (ngModelChange)="onAbonoInputChange($event)"
+                    (blur)="commitAbonoAmount()"
+                    (keydown.enter)="commitAbonoAmount()"
+                    class="w-32 border border-slate-300 bg-white px-3 py-1.5 text-right font-semibold text-slate-900 outline-none transition focus:border-slate-400"
+                  />
+                } @else {
+                  <span
+                    class="font-semibold text-slate-900"
+                    [class.cursor-text]="applyAbono"
+                    (dblclick)="enableAbonoEditing()"
+                  >
+                    {{ formatCurrency(abonoToPay) }}
+                  </span>
+                }
               </div>
-            </article>
-          }
-        </div>
+            </div>
+
+            <div class="mt-3 border-t border-slate-200 pt-3">
+              <div class="flex items-center justify-between gap-4">
+                <span class="text-base font-semibold text-[#0f1a2c]">Total</span>
+                <span class="text-[1.15rem] font-semibold tracking-[-0.02em] text-[#0f1a2c]">
+                  {{ formatCurrency(totalToPay) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
 
-      <div class="border-t border-slate-200 px-5 py-5">
-        <div class="flex items-center justify-between gap-4">
-          <span class="text-sm font-medium text-slate-500">Total a pagar</span>
-          <span class="text-xl font-semibold text-slate-900">{{ formatCurrency(selectedItemsTotal) }}</span>
+      <div class="border-t border-slate-200 bg-white/90 px-5 py-4 backdrop-blur-sm">
+        <div class="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            (click)="payOnline()"
+            class="inline-flex w-full items-center justify-center gap-2 border border-[#0f1a2c] bg-[#0f1a2c] px-4 py-3.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#1d2940]"
+          >
+            <lucide-icon [name]="icons.CreditCard" class="h-4 w-4"></lucide-icon>
+            <span>Pago en línea</span>
+          </button>
+
+          <button
+            type="button"
+            (click)="printReceipt()"
+            class="inline-flex w-full items-center justify-center gap-2 border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-50"
+          >
+            <lucide-icon [name]="icons.Printer" class="h-4 w-4"></lucide-icon>
+            <span>Imprimir recibo</span>
+          </button>
         </div>
       </div>
     </div>

@@ -6,6 +6,7 @@ import { StockService } from '@core/services/stock.service';
 import { SnackbarService } from '@core/services/snackbar.service';
 import { LoadingSpinnerComponent } from '@shared/components/loading-spinner/loading-spinner.component';
 import { ImgHoverZoomDirective } from '@shared/directives/img-hover-zoom.directive';
+import { NumberFormatService } from '@shared/services/number-format.service';
 import { InventoryStatementItem } from '../../models/stock.model';
 
 @Component({
@@ -27,7 +28,8 @@ export class InventoryStatementComponent implements OnInit {
 
   constructor(
     private stockService: StockService,
-    private snackbarService: SnackbarService
+    private snackbarService: SnackbarService,
+    private numberFormatService: NumberFormatService
   ) {}
 
   ngOnInit(): void {
@@ -72,47 +74,15 @@ export class InventoryStatementComponent implements OnInit {
   }
 
   formatDate(value: string): string {
-    if (!value) {
-      return '';
-    }
-
-    const parsedDate = new Date(value);
-
-    if (Number.isNaN(parsedDate.getTime())) {
-      const normalizedValue = value.split('T')[0];
-      const parts = normalizedValue.split(/[-/]/);
-
-      if (parts.length === 3) {
-        const [year, month, day] = parts;
-
-        if (year.length === 4) {
-          return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
-        }
-      }
-
-      return value;
-    }
-
-    return new Intl.DateTimeFormat('es-CO', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    }).format(parsedDate);
+    return this.numberFormatService.formatDate(value);
   }
 
   formatNumber(value: number): string {
-    return new Intl.NumberFormat('es-CO', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2
-    }).format(value ?? 0);
+    return this.numberFormatService.formatNumber(value);
   }
 
   formatCurrency(value: number): string {
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
-      maximumFractionDigits: 0
-    }).format(value ?? 0);
+    return this.numberFormatService.formatCurrency(value);
   }
 
   private loadStatement() {

@@ -1,9 +1,9 @@
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { Component, DestroyRef, OnDestroy, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, ElementRef, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { finalize, forkJoin } from 'rxjs';
-import { LucideAngularModule, ChevronRight, CreditCard, PencilRuler, X } from 'lucide-angular';
+import { LucideAngularModule, ChevronRight, CircleAlert, CreditCard, PencilRuler, Printer, SquareMinus, X } from 'lucide-angular';
 import { QuoteService } from '@core/services/quote.service';
 import { SnackbarService } from '@core/services/snackbar.service';
 import { LoadingSpinnerComponent } from '@shared/components/loading-spinner/loading-spinner.component';
@@ -18,11 +18,28 @@ export class QuoteListComponent implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
   private readonly document = inject(DOCUMENT);
 
+  @ViewChild('abonoAmountInput')
+  set abonoAmountInputRef(input: ElementRef<HTMLInputElement> | undefined) {
+    if (!input || !this.isEditingAbono) {
+      return;
+    }
+
+    queueMicrotask(() => {
+      input.nativeElement.focus();
+      input.nativeElement.select();
+    });
+  }
+
   loading = false;
   quoteItems: QuoteItem[] = [];
   customerBalance: QuoteCustomerBalance | null = null;
   showPaymentDrawer = false;
-  icons = { PencilRuler, CreditCard, ChevronRight, X };
+  applyReteIca = true;
+  applyAbono = false;
+  abonoAmount = 0;
+  abonoInput = '';
+  isEditingAbono = false;
+  icons = { PencilRuler, CreditCard, ChevronRight, CircleAlert, Printer, SquareMinus, X };
 
   constructor(
     private quoteService: QuoteService,
@@ -49,6 +66,67 @@ export class QuoteListComponent implements OnInit, OnDestroy {
 
   get shouldShowCupo(): boolean {
     return this.customerBalance?.usaCupo === true;
+  }
+
+  get subtotalToPay(): number {
+    return this.selectedItemsTotal;
+  }
+
+  get discountToPay(): number {
+    return this.customerBalance?.descuento ?? 0;
+  }
+
+  get ivaToPay(): number {
+    return this.customerBalance?.iva ?? 0;
+  }
+
+  get reteFuenteToPay(): number {
+    return this.customerBalance?.reteFuente ?? 0;
+  }
+
+  get reteIvaToPay(): number {
+    return this.customerBalance?.reteIva ?? 0;
+  }
+
+  get reteIcaToPay(): number {
+    if (!this.applyReteIca) {
+      return 0;
+    }
+
+    return this.customerBalance?.reteIca ?? 0;
+  }
+
+  get carteraToPay(): number {
+    return this.customerBalance?.cartera ?? 0;
+  }
+
+  get apinToPay(): number {
+    return this.customerBalance?.apin ?? 0;
+  }
+
+  get saldoAFavorToPay(): number {
+    return this.customerBalance?.saldoAFavor ?? 0;
+  }
+
+  get abonoToPay(): number {
+    if (!this.applyAbono) {
+      return 0;
+    }
+
+    return this.abonoAmount;
+  }
+
+  get totalToPay(): number {
+    return this.subtotalToPay
+      - this.discountToPay
+      + this.ivaToPay
+      - this.reteFuenteToPay
+      - this.reteIvaToPay
+      - this.reteIcaToPay
+      + this.carteraToPay
+      + this.apinToPay
+      - this.saldoAFavorToPay
+      + this.abonoToPay;
   }
 
   shouldShowDetailAction(item: QuoteItem): boolean {
@@ -125,8 +203,68 @@ export class QuoteListComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.applyReteIca = (this.customerBalance?.reteIca ?? 0) > 0;
+    this.applyAbono = false;
+    this.abonoAmount = 0;
+    this.abonoInput = '';
+    this.isEditingAbono = false;
     this.showPaymentDrawer = true;
     this.lockBodyScroll();
+  }
+
+  onApplyAbonoChange(checked: boolean) {
+    this.applyAbono = checked;
+
+    if (checked) {
+      this.abonoInput = this.formatNumber(this.abonoAmount);
+      this.isEditingAbono = true;
+      return;
+    }
+
+    this.abonoAmount = 0;
+    this.abonoInput = '';
+    this.isEditingAbono = false;
+  }
+
+  onAbonoInputChange(value: string) {
+    const digitsOnly = (value ?? '').replace(/\D/g, '');
+
+    if (!digitsOnly) {
+      this.abonoAmount = 0;
+      this.abonoInput = '';
+      return;
+    }
+
+    this.abonoAmount = Number(digitsOnly);
+    this.abonoInput = this.formatNumber(this.abonoAmount);
+  }
+
+  commitAbonoAmount() {
+    if (!this.applyAbono) {
+      return;
+    }
+
+    const normalizedAmount = Number.isFinite(this.abonoAmount) ? this.abonoAmount : 0;
+    this.abonoAmount = Math.max(0, normalizedAmount);
+    this.abonoInput = this.abonoAmount ? this.formatNumber(this.abonoAmount) : '';
+    this.isEditingAbono = false;
+  }
+
+  enableAbonoEditing() {
+    if (!this.applyAbono) {
+      return;
+    }
+
+    this.abonoInput = this.abonoAmount ? this.formatNumber(this.abonoAmount) : '';
+    this.isEditingAbono = true;
+  }
+
+  payOnline() {
+    this.snackbarService.show('La integracion de pago en linea esta lista para conectarse.', 'info');
+  }
+
+  printReceipt() {
+    this.document.defaultView?.print();
   }
 
   ngOnDestroy(): void {

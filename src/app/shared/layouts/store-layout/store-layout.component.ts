@@ -7,6 +7,7 @@ import { AuthService } from '@core/services/auth.service';
 import { SnackbarService } from '@core/services/snackbar.service';
 import { AppFooterComponent } from '@shared/components/app-footer/app-footer.component';
 import { AppHeaderComponent, HeaderMenuItem } from '@shared/components/app-header/app-header.component';
+import { NumberFormatService } from '@shared/services/number-format.service';
 
 @Component({
   selector: 'app-store-layout',
@@ -18,7 +19,8 @@ export class StoreLayoutComponent {
     private authService: AuthService,
     private router: Router,
     private cartService: CartService,
-    private snackbarService: SnackbarService
+    private snackbarService: SnackbarService,
+    private numberFormatService: NumberFormatService
   ) {}
 
   icons = { X };
@@ -26,11 +28,7 @@ export class StoreLayoutComponent {
   showCart = false;
 
   get cartSubtotal(): string {
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
-      maximumFractionDigits: 0
-    }).format(this.cartService.subtotal);
+    return this.numberFormatService.formatCurrency(this.cartService.subtotal);
   }
 
   get cartCount(): number {

@@ -19,7 +19,7 @@
             <span></span>
             <span>Detalle</span>
             <span>Cantidad</span>
-            <span></span>
+            <span>Total</span>
             <span></span>
           </div>
 
@@ -37,13 +37,13 @@
                 </div>
 
                 <div class="space-y-1 pt-[0.2rem] md:col-auto">
-                  <p class="text-[0.95rem] text-slate-400">Calidad1: {{ cartItem.quantityA }} mtrs.</p>
-                  <p class="text-[0.95rem] text-rose-600">CalidadB: {{ cartItem.quantityB }} mtrs.</p>
+                  <p class="text-[0.95rem] text-slate-400">Calidad1: {{ cartItem.quantityA | appNumber:0:2 }} mtrs.</p>
+                  <p class="text-[0.95rem] text-rose-600">CalidadB: {{ cartItem.quantityB | appNumber:0:2 }} mtrs.</p>
                 </div>
 
                 <div class="space-y-1 pt-[0.2rem]">
-                  <p class="text-[0.95rem] text-slate-400">{{ getLinePrice(cartItem.quantityA, cartItem.unitPriceA) }}</p>
-                  <p class="text-[0.95rem] text-rose-600">{{ getLinePrice(cartItem.quantityB, cartItem.unitPriceB) }}</p>
+                  <p class="text-[0.95rem] text-slate-400">{{ (cartItem.quantityA * cartItem.unitPriceA) | appCurrency }}</p>
+                  <p class="text-[0.95rem] text-rose-600">{{ (cartItem.quantityB * cartItem.unitPriceB) | appCurrency }}</p>
                   <p class="pt-2 text-left text-[1.15rem] font-medium md:text-right">{{ cartItem.price }}</p>
                 </div>
 
@@ -89,12 +89,12 @@
 
         <div class="mb-2 flex items-center justify-between gap-4 text-[1rem]">
           <span>Subtotal</span>
-          <span>{{ subtotal }}</span>
+          <span>{{ subtotal | appCurrency }}</span>
         </div>
 
         <div class="mb-8 flex items-center justify-between gap-4 pt-2 text-[1.05rem] font-bold text-[#0f1a2c]">
           <span>Total</span>
-          <span class="text-[1.15rem]">{{ total }}</span>
+          <span class="text-[1.15rem]">{{ total | appCurrency }}</span>
         </div>
 
         <p class="mt-7 text-[0.85rem] leading-[1.4] text-slate-700">Precio antes de IVA y sin dto comercial a pie de factura</p>

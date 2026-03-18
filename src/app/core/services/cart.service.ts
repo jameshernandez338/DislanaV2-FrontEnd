@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { NumberFormatService } from '@shared/services/number-format.service';
 
 export interface CartItem {
   id: string;
@@ -21,6 +22,8 @@ export interface CartItem {
 export class CartService {
   private readonly _items = signal<CartItem[]>([]);
   readonly items = this._items.asReadonly();
+
+  constructor(private numberFormatService: NumberFormatService) {}
 
   get count(): number {
     return this._items().length;
@@ -72,10 +75,6 @@ export class CartService {
   }
 
   private formatCurrency(value: number): string {
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
-      maximumFractionDigits: 0
-    }).format(value);
+    return this.numberFormatService.formatCurrency(value);
   }
 }

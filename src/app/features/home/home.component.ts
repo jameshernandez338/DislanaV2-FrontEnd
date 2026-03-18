@@ -11,6 +11,9 @@ import { SnackbarService } from '@core/services/snackbar.service';
 import { OverflowAnimateDirective } from '@shared/directives/overflow-animate.directive';
 import { LoadingSpinnerComponent } from '@shared/components/loading-spinner/loading-spinner.component';
 import { WhatsappButtonComponent } from '@shared/components/whatsapp-button/whatsapp-button.component';
+import { AppDatePipe } from '@shared/pipes/app-date.pipe';
+import { AppNumberPipe } from '@shared/pipes/app-number.pipe';
+import { NumberFormatService } from '@shared/services/number-format.service';
 import { CommittedStockItem } from '../stock/models/stock.model';
 import { FilterGroup, FilterOption, ProductFilterItem, ProductListItem } from './models/home-filter.model';
 
@@ -23,7 +26,9 @@ import { FilterGroup, FilterOption, ProductFilterItem, ProductListItem } from '.
     LucideAngularModule,
     OverflowAnimateDirective,
     LoadingSpinnerComponent,
-    WhatsappButtonComponent
+    WhatsappButtonComponent,
+    AppNumberPipe,
+    AppDatePipe
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
@@ -55,7 +60,8 @@ export class HomeComponent implements OnInit {
   constructor(
     private productService: ProductService,
     private stockService: StockService,
-    private snackbarService: SnackbarService
+    private snackbarService: SnackbarService,
+    private numberFormatService: NumberFormatService
   ) {}
 
   icons = { Search, X, Ruler };
@@ -153,18 +159,6 @@ export class HomeComponent implements OnInit {
     return item.imagen || '/images/categories/school.png';
   }
 
-  getProductAvailable(item: ProductListItem): string {
-    return item.disponible !== undefined ? `Disponible (${item.disponible} mtrs)` : 'Disponible';
-  }
-
-  getProductSeparated(item: ProductListItem): string {
-    return item.separado !== undefined ? `Separados ${item.separado}` : 'Separado';
-  }
-
-  getProductPending(item: ProductListItem): string {
-    return item.pendiente !== undefined ? `Pendientes ${item.pendiente}` : 'Pendiente';
-  }
-
   hasProductStatus(item: ProductListItem): boolean {
     return (item.separado ?? 0) > 0 || (item.pendiente ?? 0) > 0;
   }
@@ -221,32 +215,7 @@ export class HomeComponent implements OnInit {
   }
 
   formatCommittedStockDate(value: string): string {
-    if (!value) {
-      return '';
-    }
-
-    const parsedDate = new Date(value);
-
-    if (Number.isNaN(parsedDate.getTime())) {
-      const normalizedValue = value.split('T')[0];
-      const parts = normalizedValue.split(/[-/]/);
-
-      if (parts.length === 3) {
-        const [year, month, day] = parts;
-
-        if (year.length === 4) {
-          return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
-        }
-      }
-
-      return value;
-    }
-
-    return new Intl.DateTimeFormat('es-CO', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    }).format(parsedDate);
+    return this.numberFormatService.formatDate(value);
   }
 
   getProductPrice(item: ProductListItem): string {
@@ -254,11 +223,7 @@ export class HomeComponent implements OnInit {
       return 'Pvp';
     }
 
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
-      maximumFractionDigits: 0
-    }).format(item.pvp);
+    return this.numberFormatService.formatCurrency(item.pvp);
   }
 
   getProductRoute(item: ProductListItem): string[] {

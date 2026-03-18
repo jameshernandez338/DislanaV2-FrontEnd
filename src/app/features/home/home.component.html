@@ -115,7 +115,7 @@
               <p class="text-center font-semibold text-sm mt-1">{{ item.detalle || 'Detalle' }}</p>
               <p class="text-center text-sm flex items-center justify-center gap-1.5">
                 <lucide-icon [name]="icons.Ruler" class="w-4 h-4 text-emerald-600"></lucide-icon>
-                <span class="text-slate-500">{{ getProductAvailable(item) }}</span>
+                <span class="text-slate-500">Disponible ({{ item.disponible | appNumber:0:2 }} mtrs)</span>
               </p>
               <div class="mt-2 flex items-center justify-center gap-4 text-sm">
                 <button
@@ -127,7 +127,7 @@
                     ? 'bg-slate-100 text-slate-800 hover:bg-slate-900 hover:text-white'
                     : 'cursor-default bg-transparent px-0 py-0 text-slate-400'"
                 >
-                  <span class="text-red-600">{{ getProductSeparated(item) }}</span>
+                  <span class="text-red-600">Separados {{ item.separado | appNumber:0:2 }}</span>
                 </button>
                 <button
                   type="button"
@@ -137,7 +137,7 @@
                     ? 'bg-slate-100 text-slate-800 hover:bg-slate-900 hover:text-white'
                     : 'cursor-default bg-transparent px-0 py-0'"
                 >
-                  {{ getProductPending(item) }}
+                  Pendientes {{ item.pendiente | appNumber:0:2 }}
                 </button>
               </div>
               <p class="mt-2 text-center text-xl">{{ getProductPrice(item) }}</p>
@@ -154,13 +154,13 @@
             </p>
 
             @if (totalPages > 1) {
-              <div class="flex items-center gap-2">
+              <div class="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:justify-end">
                 <button
                   type="button"
                   (mousedown)="preventMouseFocus($event)"
                   (click)="goToFirstPage()"
                   [disabled]="currentPage() === 1"
-                  class="h-10 px-4 border border-slate-300 bg-white text-sm outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-40"
+                  class="h-10 px-3 border border-slate-300 bg-white text-sm outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-40 sm:px-4"
                 >
                   Primera
                 </button>
@@ -170,7 +170,7 @@
                   (mousedown)="preventMouseFocus($event)"
                   (click)="goToPreviousPage()"
                   [disabled]="currentPage() === 1"
-                  class="h-10 px-4 border border-slate-300 bg-white text-sm outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-40"
+                  class="h-10 px-3 border border-slate-300 bg-white text-sm outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-40 sm:px-4"
                 >
                   Anterior
                 </button>
@@ -180,7 +180,7 @@
                     type="button"
                     (mousedown)="preventMouseFocus($event)"
                     (click)="goToPage(page)"
-                    class="h-10 min-w-10 px-3 border text-sm outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+                    class="h-10 min-w-0 px-3 border text-sm outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
                     [ngClass]="currentPage() === page ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-300 bg-white text-slate-700 hover:border-slate-500'"
                   >
                     {{ page }}
@@ -192,7 +192,7 @@
                   (mousedown)="preventMouseFocus($event)"
                   (click)="goToNextPage()"
                   [disabled]="currentPage() === totalPages"
-                  class="h-10 px-4 border border-slate-300 bg-white text-sm outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-40"
+                  class="h-10 px-3 border border-slate-300 bg-white text-sm outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-40 sm:px-4"
                 >
                   Siguiente
                 </button>
@@ -202,7 +202,7 @@
                   (mousedown)="preventMouseFocus($event)"
                   (click)="goToLastPage()"
                   [disabled]="currentPage() === totalPages"
-                  class="h-10 px-4 border border-slate-300 bg-white text-sm outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-40"
+                  class="h-10 px-3 border border-slate-300 bg-white text-sm outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-40 sm:px-4"
                 >
                   Ultima
                 </button>
@@ -333,7 +333,7 @@
                 @for (row of getPendingOrders(); track row.documento + row.fecha + row.cantidad) {
                   <div class="grid grid-cols-[1.1fr_1fr_0.8fr] items-center border-t border-slate-200 px-4 py-3 text-sm text-slate-700 even:bg-slate-50/70">
                     <span>{{ row.documento }}</span>
-                    <span>{{ formatCommittedStockDate(row.fecha) }}</span>
+                    <span>{{ row.fecha | appDate }}</span>
                     <span class="text-right">{{ row.cantidad }}</span>
                   </div>
                 }
@@ -372,7 +372,7 @@
                 @for (row of getPendingInvoices(); track row.documento + row.fecha + row.cantidad) {
                   <div class="grid grid-cols-[1.1fr_1fr_0.8fr] items-center border-t border-slate-200 px-4 py-3 text-sm text-slate-700 even:bg-slate-50/70">
                     <span>{{ row.documento }}</span>
-                    <span>{{ formatCommittedStockDate(row.fecha) }}</span>
+                    <span>{{ row.fecha | appDate }}</span>
                     <span class="text-right">{{ row.cantidad }}</span>
                   </div>
                 }
@@ -390,7 +390,7 @@
 
 <app-loading-spinner
   [show]="loadingFilters() || loadingCommittedStock"
-  [message]="loadingCommittedStock ? 'Consultando inventario comprometido...' : 'Cargando'"
+  [message]="loadingCommittedStock ? 'Consultando inventario comprometido...' : 'Cargando productos'"
 ></app-loading-spinner>
 <app-whatsapp-button
   phone="573124578522"
