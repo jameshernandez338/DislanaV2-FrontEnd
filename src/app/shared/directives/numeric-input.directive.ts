@@ -128,9 +128,16 @@ export class NumericInputDirective implements ControlValueAccessor {
     const currentValue = input.value ?? '';
     const selectionStart = input.selectionStart ?? currentValue.length;
     const selectionEnd = input.selectionEnd ?? currentValue.length;
-    const nextValue = `${currentValue.slice(0, selectionStart)}${key}${currentValue.slice(selectionEnd)}`;
+    const normalizedValue = this.sanitizeValue(currentValue);
+    const normalizedSelectionStart = this.getNormalizedSelectionIndex(currentValue, selectionStart);
+    const normalizedSelectionEnd = this.getNormalizedSelectionIndex(currentValue, selectionEnd);
+    const nextValue = `${normalizedValue.slice(0, normalizedSelectionStart)}${key}${normalizedValue.slice(normalizedSelectionEnd)}`;
 
     return this.isValueValid(nextValue);
+  }
+
+  private getNormalizedSelectionIndex(value: string, selectionIndex: number): number {
+    return this.sanitizeValue(value.slice(0, selectionIndex)).length;
   }
 
   private isValueValid(value: string): boolean {

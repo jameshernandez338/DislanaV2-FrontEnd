@@ -2,7 +2,14 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AppConfigService } from '../config/app-config.service';
-import { QuoteCustomerBalance, QuoteItem } from '../../features/quote/models/quote.model';
+import {
+  PaymentRequest,
+  PaymentResponse,
+  QuoteCustomerBalanceDetail,
+  QuoteCustomerTaxes,
+  QuoteItem,
+  WompiPayment
+} from '../../features/quote/models/quote.model';
 
 @Injectable({ providedIn: 'root' })
 export class QuoteService {
@@ -19,7 +26,21 @@ export class QuoteService {
     return this.http.get<QuoteItem[]>(`${this.apiUrl}/list`);
   }
 
-  getCustomerBalance(): Observable<QuoteCustomerBalance> {
-    return this.http.get<QuoteCustomerBalance>(`${this.apiUrl}/customer-balance`);
+  getCustomerTaxes(): Observable<QuoteCustomerTaxes> {
+    return this.http.get<QuoteCustomerTaxes>(`${this.apiUrl}/customer-taxes`);
+  }
+
+  getCustomerBalance(type: string): Observable<QuoteCustomerBalanceDetail[]> {
+    return this.http.get<QuoteCustomerBalanceDetail[]>(`${this.apiUrl}/customer-balance`, {
+      params: { type }
+    });
+  }
+
+  createPayment(payload: PaymentRequest): Observable<WompiPayment> {
+    return this.http.post<WompiPayment>(`${this.appConfig.apiBaseUrl}/api/payment/create`, payload);
+  }
+
+  savePaymentOnly(payload: PaymentRequest): Observable<PaymentResponse> {
+    return this.http.post<PaymentResponse>(`${this.appConfig.apiBaseUrl}/api/payment/save-only`, payload);
   }
 }

@@ -160,7 +160,7 @@
                   (mousedown)="preventMouseFocus($event)"
                   (click)="goToFirstPage()"
                   [disabled]="currentPage() === 1"
-                  class="h-10 px-3 border border-slate-300 bg-white text-sm outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-40 sm:px-4"
+                  class="app-pagination-button px-3 sm:px-4"
                 >
                   Primera
                 </button>
@@ -170,7 +170,7 @@
                   (mousedown)="preventMouseFocus($event)"
                   (click)="goToPreviousPage()"
                   [disabled]="currentPage() === 1"
-                  class="h-10 px-3 border border-slate-300 bg-white text-sm outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-40 sm:px-4"
+                  class="app-pagination-button px-3 sm:px-4"
                 >
                   Anterior
                 </button>
@@ -192,7 +192,7 @@
                   (mousedown)="preventMouseFocus($event)"
                   (click)="goToNextPage()"
                   [disabled]="currentPage() === totalPages"
-                  class="h-10 px-3 border border-slate-300 bg-white text-sm outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-40 sm:px-4"
+                  class="app-pagination-button px-3 sm:px-4"
                 >
                   Siguiente
                 </button>
@@ -202,7 +202,7 @@
                   (mousedown)="preventMouseFocus($event)"
                   (click)="goToLastPage()"
                   [disabled]="currentPage() === totalPages"
-                  class="h-10 px-3 border border-slate-300 bg-white text-sm outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 disabled:cursor-not-allowed disabled:opacity-40 sm:px-4"
+                  class="app-pagination-button px-3 sm:px-4"
                 >
                   Ultima
                 </button>

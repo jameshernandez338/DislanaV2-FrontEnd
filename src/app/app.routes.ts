@@ -13,6 +13,13 @@ export const routes: Routes = [
       import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES)
   },
   {
+    path: 'cotizar/recibo',
+    canActivate: [AuthGuard],
+    loadComponent: () =>
+      import('./features/quote/pages/quote-receipt/quote-receipt.component')
+        .then(m => m.QuoteReceiptComponent)
+  },
+  {
     path: '',
     canActivate: [AuthGuard],
     loadComponent: () =>

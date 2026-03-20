@@ -1,10 +1,10 @@
 <div class="max-w-[1280px] mx-auto w-full px-4 md:px-6 py-8 md:py-8 text-[#0f1a2c]">
-  <h1 class="mb-8 text-center text-[clamp(2rem,4.5vw,2.3rem)] font-bold tracking-[-0.04em]">Tu pedido</h1>
+  <h1 class="mb-8 text-center text-[clamp(2rem,4.5vw,2.3rem)] font-semibold tracking-[-0.04em]">Tu pedido</h1>
 
   <section class="grid items-start gap-10 lg:grid-cols-[minmax(0,1.55fr)_minmax(340px,0.95fr)] lg:gap-10 xl:gap-10">
     <div class="min-w-0">
       @if (cartItems.length === 0) {
-        <div class="border border-slate-300 bg-white px-6 py-10 text-center">
+        <div class="app-panel px-6 py-10 text-center">
           <p class="mb-4 text-slate-600">No tienes productos agregados.</p>
           <a
             routerLink="/home"
@@ -14,7 +14,7 @@
           </a>
         </div>
       } @else {
-        <div class="border border-slate-300 bg-white px-5 py-5 md:px-7 md:py-6">
+        <div class="app-panel px-5 py-5 md:px-7 md:py-6">
           <div class="hidden grid-cols-[96px_minmax(0,1fr)_160px_120px_48px] items-center gap-6 border-b border-slate-300 pb-5 text-[0.92rem] text-[#0f1a2c] md:grid">
             <span></span>
             <span>Detalle</span>
@@ -51,7 +51,7 @@
                   <button
                     type="button"
                     (click)="removeItem(cartItem.id)"
-                    class="inline-flex h-6 w-6 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-500 transition hover:border-slate-900 hover:text-slate-900"
+                    class="app-panel inline-flex h-6 w-6 items-center justify-center rounded-full text-slate-500 transition hover:border-slate-900 hover:text-slate-900"
                     aria-label="Eliminar producto"
                   >
                     <lucide-icon [name]="icons.X" class="h-4 w-4"></lucide-icon>

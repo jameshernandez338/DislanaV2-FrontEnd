@@ -4,7 +4,12 @@ export default {
     "./src/**/*.{html,ts}"
   ],
   theme: {
-    extend: {},
+    extend: {
+      maxWidth: {
+        '6xl': '72rem',
+        '7xl': '80rem'
+      }
+    },
   },
   plugins: [],
 }

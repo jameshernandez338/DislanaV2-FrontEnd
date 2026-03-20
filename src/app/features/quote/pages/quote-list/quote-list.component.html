@@ -1,11 +1,11 @@
 <div class="mx-auto w-full max-w-[1280px] px-4 py-6 md:px-6 md:py-8">
   <div class="mb-8 flex items-start justify-between gap-4">
-    <h1 class="text-[clamp(1.7rem,4vw,1.7rem)] font-bold tracking-[-0.04em] text-[#0f1a2c]">
+    <h1 class="text-[clamp(1.7rem,4vw,1.7rem)] font-semibold tracking-[-0.04em] text-[#0f1a2c]">
       Pendientes por Facturar - Bodega Virtual
     </h1>
     @if (shouldShowCupo) {
       <span class="whitespace-nowrap rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700">
-        Cupo {{ formatCurrency(customerBalance?.cupo ?? 0) }}
+        Cupo {{ formatCurrency(customerTaxes?.cupo ?? 0) }}
       </span>
     }
   </div>
@@ -65,7 +65,7 @@
                       type="checkbox"
                       [(ngModel)]="row.cotizar"
                       (ngModelChange)="onCotizarChange($event, row)"
-                      class="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400"
+                      class="app-checkbox"
                     />
                   }
                 </td>
@@ -95,7 +95,7 @@
               Total a pagar
             </span>
             <span class="min-w-[140px] text-right text-base font-semibold text-slate-900">
-              {{ formatCurrency(selectedItemsTotal) }}
+              {{ formatCurrency(totalToPay) }}
             </span>
           </span>
           <span class="text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-slate-700">
@@ -128,7 +128,7 @@
         <button
           type="button"
           (click)="closePaymentDetail()"
-          class="inline-flex h-10 w-10 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+          class="app-icon-button h-10 w-10"
           aria-label="Cerrar drawer"
         >
           <lucide-icon [name]="icons.X" class="h-5 w-5"></lucide-icon>
@@ -166,7 +166,7 @@
                 <input
                   type="checkbox"
                   [(ngModel)]="applyReteIca"
-                  class="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400"
+                  class="app-checkbox"
                 />
                 <span>Aplicar Rete ICA</span>
               </label>
@@ -176,22 +176,86 @@
             <div class="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2">
               <span class="inline-flex items-center gap-2 text-[#dc2626]">
                 <span>Cartera Vencida</span>
-                <lucide-icon [name]="icons.CircleAlert" class="h-4 w-4"></lucide-icon>
+                <button
+                  type="button"
+                  (click)="openBalanceDetail('cartera')"
+                  class="inline-flex items-center justify-center"
+                  aria-label="Ver detalle de cartera vencida"
+                >
+                  <lucide-icon [name]="icons.CircleAlert" class="h-4 w-4"></lucide-icon>
+                </button>
               </span>
               <span class="text-right font-medium text-[#dc2626]">{{ formatCurrency(carteraToPay) }}</span>
 
               <span class="inline-flex items-center gap-2 text-[#dc2626]">
                 <span>APIN</span>
-                <lucide-icon [name]="icons.CircleAlert" class="h-4 w-4"></lucide-icon>
+                <button
+                  type="button"
+                  (click)="openBalanceDetail('apin')"
+                  class="inline-flex items-center justify-center"
+                  aria-label="Ver detalle de APIN"
+                >
+                  <lucide-icon [name]="icons.CircleAlert" class="h-4 w-4"></lucide-icon>
+                </button>
               </span>
               <span class="text-right font-medium text-[#dc2626]">{{ formatCurrency(apinToPay) }}</span>
 
               <span class="inline-flex items-center gap-2 text-[#0f766e]">
                 <span>Saldo a Favor</span>
-                <lucide-icon [name]="icons.CircleAlert" class="h-4 w-4"></lucide-icon>
+                <button
+                  type="button"
+                  (click)="openBalanceDetail('saldoAFavor')"
+                  class="inline-flex items-center justify-center"
+                  aria-label="Ver detalle de saldo a favor"
+                >
+                  <lucide-icon [name]="icons.CircleAlert" class="h-4 w-4"></lucide-icon>
+                </button>
               </span>
               <span class="text-right font-medium text-[#0f766e]">{{ formatCurrency(saldoAFavorToPay) }}</span>
             </div>
+
+            @if (shouldShowCupo) {
+              <div class="bg-slate-50 px-3 py-2.5">
+                <div class="flex items-center justify-between gap-4">
+                  <span class="inline-flex items-center gap-2 text-[0.92rem] font-medium text-slate-800">
+                    <span>Cupo Utilizado</span>
+                    <span class="relative inline-flex">
+                      <button
+                        #cupoTooltipButton
+                        type="button"
+                        (click)="toggleCupoTooltip()"
+                        class="inline-flex items-center justify-center text-slate-500 transition hover:text-slate-700"
+                        aria-label="Ver detalle del cupo utilizado"
+                      >
+                        <lucide-icon [name]="icons.CircleAlert" class="h-4 w-4"></lucide-icon>
+                      </button>
+
+                      @if (showCupoTooltip) {
+                        <div
+                          #cupoTooltipPanel
+                          class="absolute left-0 top-6 z-10 w-64 rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-700 shadow-xl"
+                        >
+                          <div class="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1.5">
+                            <span class="text-slate-500">Cupo disponible</span>
+                            <span class="text-right">{{ formatCurrency(cupoToPay) }}</span>
+
+                            <span class="text-slate-500">Cupo aplicado a APIN</span>
+                            <span class="text-right">{{ formatCurrency(cupoUsedForApinToPay) }}</span>
+
+                            <span class="text-slate-500">Cupo aplicado a items e impuestos</span>
+                            <span class="text-right">{{ formatCurrency(cupoUsedForItemsToPay) }}</span>
+
+                            <span class="text-slate-500">Cupo restante</span>
+                            <span class="text-right">{{ formatCurrency(cupoRemainingToPay) }}</span>
+                          </div>
+                        </div>
+                      }
+                    </span>
+                  </span>
+                  <span class="font-semibold text-slate-900">{{ formatCurrency(cupoUsedToPay) }}</span>
+                </div>
+              </div>
+            }
 
             <div class="border border-dashed border-slate-200 px-3 py-2.5">
               <div class="flex items-center justify-between gap-4">
@@ -200,7 +264,7 @@
                     type="checkbox"
                     [ngModel]="applyAbono"
                     (ngModelChange)="onApplyAbonoChange($event)"
-                    class="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400"
+                    class="app-checkbox"
                   />
                   <span>Realizar abono</span>
                 </label>
@@ -210,16 +274,20 @@
                     type="text"
                     inputmode="numeric"
                     autocomplete="off"
-                    [ngModel]="abonoInput"
-                    (ngModelChange)="onAbonoInputChange($event)"
+                    [appNumericInput]="0"
+                    [value]="abonoInput"
+                    (input)="onAbonoInputChange($any($event.target).value)"
                     (blur)="commitAbonoAmount()"
                     (keydown.enter)="commitAbonoAmount()"
-                    class="w-32 border border-slate-300 bg-white px-3 py-1.5 text-right font-semibold text-slate-900 outline-none transition focus:border-slate-400"
+                    class="app-input-outline w-32 px-3 py-1.5 text-right font-semibold"
                   />
                 } @else {
                   <span
-                    class="font-semibold text-slate-900"
-                    [class.cursor-text]="applyAbono"
+                    class="font-semibold text-slate-900 transition"
+                    [class.cursor-pointer]="applyAbono"
+                    [class.decoration-dotted]="applyAbono"
+                    [class.hover:text-slate-700]="applyAbono"
+                    [attr.title]="applyAbono ? 'Doble clic para editar' : null"
                     (dblclick)="enableAbonoEditing()"
                   >
                     {{ formatCurrency(abonoToPay) }}
@@ -245,7 +313,10 @@
           <button
             type="button"
             (click)="payOnline()"
-            class="inline-flex w-full items-center justify-center gap-2 border border-[#0f1a2c] bg-[#0f1a2c] px-4 py-3.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#1d2940]"
+            [disabled]="creatingPayment"
+            class="app-action-button app-action-button-primary"
+            [class.opacity-60]="creatingPayment"
+            [class.cursor-not-allowed]="creatingPayment"
           >
             <lucide-icon [name]="icons.CreditCard" class="h-4 w-4"></lucide-icon>
             <span>Pago en línea</span>
@@ -254,7 +325,10 @@
           <button
             type="button"
             (click)="printReceipt()"
-            class="inline-flex w-full items-center justify-center gap-2 border border-slate-300 bg-white px-4 py-3.5 text-sm font-semibold text-slate-700 transition hover:-translate-y-0.5 hover:border-slate-400 hover:bg-slate-50"
+            [disabled]="printingReceipt"
+            class="app-action-button app-action-button-secondary"
+            [class.opacity-60]="printingReceipt"
+            [class.cursor-not-allowed]="printingReceipt"
           >
             <lucide-icon [name]="icons.Printer" class="h-4 w-4"></lucide-icon>
             <span>Imprimir recibo</span>
@@ -263,6 +337,147 @@
       </div>
     </div>
   </aside>
+}
+
+@if (showBalanceDetailModal) {
+  <div class="fixed inset-0 z-[70] flex items-start justify-center overflow-y-auto p-3 pt-8 sm:p-6 sm:pt-10">
+    <div
+      class="absolute inset-0 bg-black/45 backdrop-blur-[1px]"
+      (click)="closeBalanceDetailModal()"
+    ></div>
+
+    <section class="relative z-[71] w-full max-w-3xl overflow-hidden border border-slate-200 bg-white shadow-2xl">
+      <div class="flex items-start justify-between gap-4 border-b border-slate-200 px-5 py-5 sm:px-7">
+        <div>
+          <h2 class="text-2xl font-bold tracking-[-0.04em] text-[#0f1a2c]">{{ selectedBalanceDetailTitle }}</h2>
+          <p class="mt-1 text-sm text-slate-500">Detalle de movimientos asociados al indicador seleccionado.</p>
+        </div>
+
+        <button
+          type="button"
+          (click)="closeBalanceDetailModal()"
+          class="app-icon-button h-10 w-10"
+          aria-label="Cerrar modal"
+        >
+          <lucide-icon [name]="icons.X" class="h-5 w-5"></lucide-icon>
+        </button>
+      </div>
+
+      <div class="px-5 py-6 sm:px-7">
+        <div class="overflow-hidden border border-slate-200">
+          <div class="grid grid-cols-[1.6fr_1fr_1fr_1fr_1fr] bg-slate-50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+            <span>Observacion</span>
+            <span>Tipo</span>
+            <span>Numero</span>
+            <span>Fecha</span>
+            <span class="text-right">Valor</span>
+          </div>
+
+          @if (loadingBalanceDetail) {
+            <div class="border-t border-slate-200 px-4 py-6 text-sm text-slate-500">
+              Consultando detalle...
+            </div>
+          } @else if (balanceDetailLoadFailed) {
+            <div class="border-t border-slate-200 px-4 py-6 text-sm text-rose-600">
+              No fue posible cargar el detalle.
+            </div>
+          } @else if (balanceDetailRows.length > 0) {
+            @for (row of balanceDetailRows; track row.observacion + row.numero + row.fecha + row.valor) {
+              <div
+                class="grid grid-cols-[1.6fr_1fr_1fr_1fr_1fr] items-center border-t border-slate-200 px-4 py-3 text-sm even:bg-slate-50/70"
+                [ngClass]="selectedBalanceDetailType === 'cartera' && row.observacion === 'Cartera Vencida'
+                  ? 'text-rose-600'
+                  : 'text-slate-700'"
+              >
+                <span>{{ row.observacion }}</span>
+                <span>{{ row.tipo }}</span>
+                <span>{{ row.numero }}</span>
+                <span>{{ row.fecha | appDate }}</span>
+                <span class="text-right">{{ row.valor | appCurrency }}</span>
+              </div>
+            }
+          } @else {
+            <div class="border-t border-slate-200 px-4 py-6 text-sm text-slate-500">
+              No hay detalle disponible para este indicador.
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+  </div>
+}
+
+@if (showQuoteDetailModal && selectedQuoteDetailItem) {
+  <div class="fixed inset-0 z-[70] flex items-start justify-center overflow-y-auto p-3 pt-8 sm:p-6 sm:pt-10">
+    <div
+      class="absolute inset-0 bg-black/45 backdrop-blur-[1px]"
+      (click)="closeQuoteDetailModal()"
+    ></div>
+
+    <section class="relative z-[71] w-full max-w-4xl overflow-hidden border border-slate-200 bg-white shadow-2xl">
+      <div class="flex justify-end px-4 py-3 sm:px-5">
+        <button
+          type="button"
+          (click)="closeQuoteDetailModal()"
+          class="app-icon-button h-10 w-10"
+          aria-label="Cerrar modal"
+        >
+          <lucide-icon [name]="icons.X" class="h-5 w-5"></lucide-icon>
+        </button>
+      </div>
+
+      <div class="grid gap-6 px-4 pb-5 sm:grid-cols-[280px_minmax(0,1fr)] sm:px-6 sm:pb-6">
+        <div class="overflow-hidden border border-slate-200 bg-slate-50">
+          <img
+            [src]="getImageUrl(selectedQuoteDetailItem)"
+            [alt]="selectedQuoteDetailItem.descripcion"
+            class="h-full min-h-[240px] w-full object-cover"
+          />
+        </div>
+
+        <div class="min-w-0">
+          <h2 class="text-2xl font-semibold tracking-[-0.04em] text-[#0f1a2c]">{{ selectedQuoteDetailItem.codigo }}</h2>
+
+          <div class="mt-3 overflow-hidden border border-slate-200">
+            <div class="grid grid-cols-[0.9fr_1fr_0.9fr_1fr_1fr] bg-white px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+              <span>Calidad</span>
+              <span>Separados</span>
+              <span class="text-center">Cotizar</span>
+              <span>Cantidad</span>
+              <span class="text-right">Valor</span>
+            </div>
+
+            @for (row of quoteDetailRows; track row.documento + row.codigo + row.calidad + row.separados) {
+              <div class="grid grid-cols-[0.9fr_1fr_0.9fr_1fr_1fr] items-center border-t border-slate-200 px-4 py-3 text-sm text-slate-700 even:bg-slate-50/70">
+                <span>{{ row.calidad }}</span>
+                <span>{{ formatNumber(row.separados) }}</span>
+                <span class="flex justify-center">
+                  <input
+                    type="checkbox"
+                    [(ngModel)]="row.cotizar"
+                    (ngModelChange)="onCotizarChange($event, row)"
+                    class="app-checkbox"
+                  />
+                </span>
+                <span>{{ formatNumber(row.cantidad) }}</span>
+                <span class="text-right font-medium text-slate-900">{{ formatCurrency(row.precioTotal) }}</span>
+              </div>
+            }
+          </div>
+
+          <div class="mt-6 flex justify-end">
+            <button
+              type="button"
+              (click)="closeQuoteDetailModal()"
+              class="inline-flex min-w-48 items-center justify-center rounded-none bg-[#1e2230] px-6 py-3 text-base font-semibold text-white transition hover:bg-[#151925]"
+            >
+              Pedir
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
 }
 
 <app-loading-spinner [show]="loading" message="Cargando lista de cotizacion..."></app-loading-spinner>
