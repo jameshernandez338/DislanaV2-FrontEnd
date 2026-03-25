@@ -31,7 +31,7 @@ export class LoginComponent {
   };
 
   loginForm: FormGroup = this.formBuilder.group({
-    email: ['', [Validators.required, Validators.email]],
+    userName: ['', [Validators.required]],
     password: ['', Validators.required]
   });
 
@@ -46,14 +46,16 @@ export class LoginComponent {
   }
 
   login() {
+    if (this.loading()) {
+      return;
+    }
+
     if (this.loginForm.invalid) {
       const controls = this.loginForm.controls;
 
-      if (controls['email'].invalid) {
-        if (controls['email'].hasError('required')) {
-          this.snackbar.show('Debe ingresar un correo', 'warning');
-        } else if (controls['email'].hasError('email')) {
-          this.snackbar.show('Debe ingresar un correo valido', 'warning');
+      if (controls['userName'].invalid) {
+        if (controls['userName'].hasError('required')) {
+          this.snackbar.show('Debe ingresar un usuario', 'warning');
         }
         return;
       }
@@ -67,10 +69,10 @@ export class LoginComponent {
     }
 
     this.loading.set(true);
-    const { email, password } = this.loginForm.value;
+    const { userName, password } = this.loginForm.value;
 
     this.authService
-      .login({ email, password })
+      .login({ userName, password })
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
         next: (res) => {

@@ -102,9 +102,12 @@
                 <a [routerLink]="getProductRoute(item)" class="block">
                   <img [src]="getProductImage(item)" [alt]="item.descripcionItem" class="w-full h-72 object-cover" />
                 </a>
-                <div class="absolute inset-x-0 bottom-0 bg-white/70 text-center py-3 opacity-0 group-hover:opacity-100 transition">
+                <a
+                  [routerLink]="getProductRoute(item)"
+                  class="absolute inset-x-0 bottom-0 bg-white/80 py-3 text-center opacity-0 transition group-hover:opacity-100"
+                >
                   <span class="tracking-wider text-sm">AGREGAR</span>
-                </div>
+                </a>
               </div>
 
               <div class="product-title-wrapper mt-3">
