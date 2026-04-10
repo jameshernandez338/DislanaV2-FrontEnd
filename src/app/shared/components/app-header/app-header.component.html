@@ -14,6 +14,7 @@
         @for (menu of menus; track menu.id) {
           <a
             [routerLink]="menu.route"
+            [queryParams]="menu.queryParams"
             class="flex items-center gap-1.5 text-[17px] transition whitespace-nowrap shrink-0"
             [ngClass]="menu.active ? 'text-blue-600' : 'text-slate-900 hover:text-slate-700'"
           >
@@ -90,6 +91,7 @@
       @for (menu of menus; track menu.id) {
         <a
           [routerLink]="menu.route"
+          [queryParams]="menu.queryParams"
           (click)="closeMobileMenu()"
           class="flex items-center gap-2 text-sm transition"
           [ngClass]="menu.active ? 'text-blue-600' : 'text-slate-900 hover:text-slate-700'"

@@ -2,8 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
-import { finalize, forkJoin } from 'rxjs';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { distinctUntilChanged, finalize, forkJoin, map } from 'rxjs';
 import { LucideAngularModule, Ruler, Search, X } from 'lucide-angular';
 import { ProductService } from '@core/services/product.service';
 import { StockService } from '@core/services/stock.service';
@@ -35,7 +35,7 @@ import { FilterGroup, FilterOption, ProductFilterItem, ProductListItem } from '.
 })
 export class HomeComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
-  private readonly filtersType = 'home';
+  private readonly defaultFiltersType = 'home';
   private readonly pageSize = 15;
   private readonly filterFieldMap: Record<string, keyof ProductListItem> = {
     codigoitem: 'codigoItem',
@@ -58,6 +58,7 @@ export class HomeComponent implements OnInit {
   };
 
   constructor(
+    private route: ActivatedRoute,
     private productService: ProductService,
     private stockService: StockService,
     private snackbarService: SnackbarService,
@@ -91,9 +92,18 @@ export class HomeComponent implements OnInit {
   visiblePages: number[] = [1];
   visibleRangeStart = 0;
   visibleRangeEnd = 0;
+  currentType = this.defaultFiltersType;
 
   ngOnInit(): void {
-    this.loadFilters();
+    this.route.queryParamMap.pipe(
+      map((params) => params.get('type') || this.defaultFiltersType),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe((type) => {
+      this.currentType = type;
+      this.resetProductState();
+      this.loadFilters(type);
+    });
   }
 
   getFilterOptions(group: FilterGroup): FilterOption[] {
@@ -269,12 +279,12 @@ export class HomeComponent implements OnInit {
     this.goToPage(this.totalPages);
   }
 
-  private loadFilters() {
+  private loadFilters(type: string) {
     this.loadingFilters.set(true);
 
     forkJoin({
-      filters: this.productService.getFilters(this.filtersType),
-      products: this.productService.getProducts(this.filtersType)
+      filters: this.productService.getFilters(type),
+      products: this.productService.getProducts(type)
     }).pipe(
       finalize(() => this.loadingFilters.set(false))
     ).subscribe({
@@ -301,6 +311,16 @@ export class HomeComponent implements OnInit {
         this.updateProductView();
       }
     });
+  }
+
+  private resetProductState() {
+    this.closeStatusModal();
+    this.productSearch = '';
+    this.selectedSort = 'ORDENAR POR';
+    this.showFiltersDrawer = false;
+    this.showSortMenu = false;
+    this.closedFilterGroups = new Set<string>();
+    this.currentPage.set(1);
   }
 
   private buildFilterGroups(items: ProductFilterItem[]): FilterGroup[] {

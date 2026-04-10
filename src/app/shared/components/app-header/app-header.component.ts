@@ -3,12 +3,14 @@ import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { Bell, FileText, House, LucideAngularModule, Menu, ReceiptText, ShoppingCart, UserRound, X } from 'lucide-angular';
+import { ClipboardList } from 'lucide-angular/src/icons';
 
 export interface HeaderMenuItem {
   id: string;
   label: string;
-  icon: 'home' | 'quote' | 'inventory' | 'portfolio' | 'collection';
+  icon: 'home' | 'quote' | 'inventory' | 'portfolio' | 'collection' | 'clipboardList';
   route: string;
+  queryParams?: Record<string, string>;
   active?: boolean;
 }
 
@@ -38,7 +40,8 @@ export class AppHeaderComponent {
     user: UserRound,
     cart: ShoppingCart,
     menu: Menu,
-    close: X
+    close: X,
+    clipboardList: ClipboardList
   };
 
   toggleMobileMenu() {

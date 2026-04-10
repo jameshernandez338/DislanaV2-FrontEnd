@@ -4,16 +4,27 @@ import { Observable } from 'rxjs';
 import { AppConfigService } from '../config/app-config.service';
 import { OrderResponse } from '../../features/cart/models/order-response.model';
 
+export interface FabricFinishDto {
+  acabado: string;
+  tieneTexto: boolean;
+  valor: number;
+}
+
 export interface OrderItemPayload {
   CodigoItem: string;
   Cantidad1: number;
   CantidadB: number;
   Pvp: number;
   PvpB: number;
+  Acabados?: {
+    Acabado: string;
+    Texto: string;
+    Valor: number;
+  }[];
 }
 
 export interface OrderPayload {
-  Orillo: string;
+  Observacion: string;
   Items: OrderItemPayload[];
 }
 
@@ -30,5 +41,9 @@ export class OrderService {
 
   placeOrder(payload: OrderPayload): Observable<OrderResponse> {
     return this.http.post<OrderResponse>(`${this.apiUrl}/save`, payload);
+  }
+
+  getFabricFinishes(): Observable<FabricFinishDto[]> {
+    return this.http.get<FabricFinishDto[]>(`${this.apiUrl}/fabric-finishes`);
   }
 }

@@ -8,6 +8,7 @@ import { RegisterRequest } from '../../features/auth/models/register-request.mod
 import { ForgotPasswordRequest } from '../../features/auth/models/forgot-password-request.model';
 import { AppConfigService } from '../config/app-config.service';
 import { SKIP_AUTH_REFRESH } from '../interceptors/auth-context.token';
+import { CartService } from './cart.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -27,7 +28,8 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router,
-    private appConfig: AppConfigService
+    private appConfig: AppConfigService,
+    private cartService: CartService
   ) {
     const storedToken = localStorage.getItem('token');
     const storedFullName = localStorage.getItem('fullName');
@@ -105,9 +107,28 @@ export class AuthService {
     this.scheduleTokenRefresh(token);
   }
 
-  logout() {
-    this.clearSession();
-    this.router.navigate(['/login']);
+  logout(notifyServer = true) {
+    if (notifyServer && this.getToken()) {
+      this.http.post(
+        `${this.apiUrl}/logout`,
+        {},
+        {
+          withCredentials: true,
+          context: new HttpContext().set(SKIP_AUTH_REFRESH, true)
+        }
+      ).pipe(
+        finalize(() => {
+          this.finishLogout();
+        })
+      ).subscribe({
+        error: () => {
+          // Local logout still completes even if the backend call fails.
+        }
+      });
+      return;
+    }
+
+    this.finishLogout();
   }
 
   isAuthenticated(): boolean {
@@ -136,7 +157,7 @@ export class AuthService {
     if (refreshInMs <= 0) {
       this.refreshToken().subscribe({
         error: () => {
-          this.logout();
+          this.logout(false);
         }
       });
       return;
@@ -145,7 +166,7 @@ export class AuthService {
     this.refreshTimeoutId = setTimeout(() => {
       this.refreshToken().subscribe({
         error: () => {
-          this.logout();
+          this.logout(false);
         }
       });
     }, refreshInMs);
@@ -182,10 +203,16 @@ export class AuthService {
 
   private clearSession() {
     this.clearRefreshTimeout();
+    this.cartService.clear();
     localStorage.removeItem('token');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('fullName');
     this._token.set(null);
     this._fullName.set(null);
+  }
+
+  private finishLogout() {
+    this.clearSession();
+    this.router.navigate(['/login']);
   }
 }

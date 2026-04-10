@@ -45,10 +45,26 @@ export class StoreLayoutComponent {
 
   get headerMenus(): HeaderMenuItem[] {
     const currentUrl = this.router.url;
+    const currentTree = this.router.parseUrl(currentUrl);
+    const currentPath = currentTree.root.children['primary']?.segments.map((segment) => segment.path).join('/') || '';
+    const currentType = currentTree.queryParams['type'] || 'home';
 
     return [
-      { id: 'home', label: 'Home', icon: 'home', route: '/home', active: currentUrl.startsWith('/home') },
-      { id: 'quote', label: 'Cotizar', icon: 'quote', route: '/cotizar', active: currentUrl.startsWith('/cotizar') },
+      {
+        id: 'home',
+        label: 'Home',
+        icon: 'home',
+        route: '/home',
+        queryParams: { type: 'home' },
+        active: currentPath === 'home' && currentType === 'home'
+      },
+      { 
+        id: 'quote', 
+        label: 'Cotizar', 
+        icon: 'quote', 
+        route: '/cotizar', 
+        active: currentUrl.startsWith('/cotizar') 
+      },
       {
         id: 'inventory',
         label: 'Extracto Inventario',
@@ -57,7 +73,21 @@ export class StoreLayoutComponent {
         active: currentUrl.startsWith('/extracto-inventario')
       },
       { id: 'portfolio', label: 'Extracto Cartera', icon: 'portfolio', route: '/home' },
-      { id: 'collection', label: 'Nueva Coleccion', icon: 'collection', route: '/home' }
+      {
+        id: 'collection',
+        label: 'Nueva Coleccion',
+        icon: 'collection',
+        route: '/home',
+        queryParams: { type: 'new' },
+        active: currentPath === 'home' && currentType === 'new'
+      },
+      { 
+        id: 'transactions', 
+        label: 'Movimientos', 
+        icon: 'clipboardList', 
+        route: '/movimientos', 
+        active: currentUrl.startsWith('/movimientos') 
+      },
     ];
   }
 
