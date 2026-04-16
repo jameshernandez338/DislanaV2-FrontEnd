@@ -55,6 +55,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/stock/pages/inventory-statement/inventory-statement.component')
             .then(m => m.InventoryStatementComponent)
+      },
+      {
+        path: 'transactions',
+        loadComponent: () =>
+          import('./features/transactions/pages/transactions-page/transactions-page.component')
+            .then(m => m.TransactionsPageComponent)
       }
     ]
   }

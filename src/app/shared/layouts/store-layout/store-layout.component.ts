@@ -85,8 +85,8 @@ export class StoreLayoutComponent {
         id: 'transactions', 
         label: 'Movimientos', 
         icon: 'clipboardList', 
-        route: '/movimientos', 
-        active: currentUrl.startsWith('/movimientos') 
+        route: '/transactions', 
+        active: currentUrl.startsWith('/transactions') 
       },
     ];
   }
