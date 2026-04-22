@@ -56,11 +56,6 @@ export class TransactionsPageComponent implements OnInit {
       return;
     }
 
-    this.snackbarService.show(
-      `Imprimir factura - ${transaction.number}.`,
-      'info'
-    );
-
     window.open(transaction.linkInvoice, '_blank', 'noopener,noreferrer');
   }
 
@@ -68,11 +63,6 @@ export class TransactionsPageComponent implements OnInit {
     if (!this.canPrintReceipt(transaction)) {
       return;
     }
-
-    this.snackbarService.show(
-      `Imprimir recibo - ${transaction.number}.`,
-      'info'
-    );
 
     window.open(transaction.linkDian, '_blank', 'noopener,noreferrer');
   }
@@ -96,7 +86,6 @@ export class TransactionsPageComponent implements OnInit {
           this.transactions = transactions;
         },
         error: (error) => {
-          console.error('No se pudo cargar la lista de movimientos.', error);
           this.transactions = [];
           this.snackbarService.show('No fue posible cargar la lista de movimientos.', 'error');
         }

@@ -12,7 +12,8 @@ import { CartService } from './cart.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private static readonly REFRESH_OFFSET_MS = 60_000;
+  private static readonly REFRESH_OFFSET_MS = 3 * 60_000;
+  private listenersInitialized = false;
 
   private get apiUrl(): string {
     return `${this.appConfig.apiBaseUrl}/api/auth`;
@@ -42,6 +43,20 @@ export class AuthService {
     if (storedFullName) {
       this._fullName.set(storedFullName);
     }
+
+    if (!this.listenersInitialized) {
+      this.listenersInitialized = true;
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          this.checkAndRefreshToken();
+        }
+      });
+
+      window.addEventListener('focus', () => {
+        this.checkAndRefreshToken();
+      });
+    }
   }
 
   login(request: LoginRequest) {
@@ -55,10 +70,6 @@ export class AuthService {
   }
 
   refreshToken() {
-    if (!this.getToken()) {
-      return throwError(() => new Error('No active session'));
-    }
-
     if (!this.refreshTokenRequest$) {
       this.refreshTokenRequest$ = this.http.post<AuthResponse>(
         `${this.apiUrl}/refresh-token`,
@@ -155,10 +166,9 @@ export class AuthService {
     const refreshInMs = expirationTime - Date.now() - AuthService.REFRESH_OFFSET_MS;
 
     if (refreshInMs <= 0) {
+      //token ya expirado o a punto, refresh inmediato controlado
       this.refreshToken().subscribe({
-        error: () => {
-          this.logout(false);
-        }
+        error: () => this.logout(false)
       });
       return;
     }
@@ -172,7 +182,7 @@ export class AuthService {
     }, refreshInMs);
   }
 
-  private getTokenExpirationTime(token: string): number | null {
+  getTokenExpirationTime(token: string): number | null {
     try {
       const payload = token.split('.')[1];
 
@@ -194,6 +204,24 @@ export class AuthService {
     }
   }
 
+  private checkAndRefreshToken() {
+    const token = this.getToken();
+    if (!token) return;
+
+    if (this.refreshTokenRequest$) return;
+
+    const exp = this.getTokenExpirationTime(token);
+    if (!exp) return;
+
+    const timeLeft = exp - Date.now();
+
+    if (timeLeft < 3 * 60 * 1000) {
+      this.refreshToken().subscribe({
+        error: () => this.logout(false)
+      });
+    }
+  }
+
   private clearRefreshTimeout() {
     if (this.refreshTimeoutId) {
       clearTimeout(this.refreshTimeoutId);
@@ -205,7 +233,6 @@ export class AuthService {
     this.clearRefreshTimeout();
     this.cartService.clear();
     localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
     localStorage.removeItem('fullName');
     this._token.set(null);
     this._fullName.set(null);
