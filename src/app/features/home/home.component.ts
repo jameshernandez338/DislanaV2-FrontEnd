@@ -11,6 +11,7 @@ import { SnackbarService } from '@core/services/snackbar.service';
 import { OverflowAnimateDirective } from '@shared/directives/overflow-animate.directive';
 import { LoadingSpinnerComponent } from '@shared/components/loading-spinner/loading-spinner.component';
 import { WhatsappButtonComponent } from '@shared/components/whatsapp-button/whatsapp-button.component';
+import { ChatAssistantComponent } from '@shared/components/chat-assistant/chat-assistant.component';
 import { AppDatePipe } from '@shared/pipes/app-date.pipe';
 import { AppNumberPipe } from '@shared/pipes/app-number.pipe';
 import { NumberFormatService } from '@shared/services/number-format.service';
@@ -27,6 +28,7 @@ import { FilterGroup, FilterOption, ProductFilterItem, ProductListItem } from '.
     OverflowAnimateDirective,
     LoadingSpinnerComponent,
     WhatsappButtonComponent,
+    ChatAssistantComponent,
     AppNumberPipe,
     AppDatePipe
   ],
