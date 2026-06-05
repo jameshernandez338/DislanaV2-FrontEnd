@@ -13,6 +13,7 @@ interface ChatMessage {
   time: Date;
   offerPdf?: boolean;
   pdfType?: string | null;
+  type?: string;
 }
 
 @Component({
@@ -30,7 +31,14 @@ export class ChatAssistantComponent {
   isLoading = signal(false);
   isPdfLoading = signal(false);
   inputText = '';
-  readonly sessionId = crypto.randomUUID();
+  readonly sessionId = this.generateUUID();
+
+  private generateUUID(): string {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = (Math.random() * 16) | 0;
+      return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
+    });
+  }
 
   messages = signal<ChatMessage[]>([
     {
@@ -69,7 +77,8 @@ export class ChatAssistantComponent {
             text: res.message,
             time: new Date(),
             offerPdf: res.offerPdf,
-            pdfType: res.pdfType
+            pdfType: res.pdfType,
+            type: res.type
           }
         ]);
         this.isLoading.set(false);

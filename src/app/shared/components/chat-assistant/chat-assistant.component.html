@@ -80,7 +80,7 @@
             <div class="max-w-[75%]">
               <div class="rounded-2xl rounded-bl-sm bg-white border border-slate-200 px-3.5 py-2.5 shadow-sm">
                 <p class="text-sm text-slate-800 leading-relaxed" [innerHTML]="parseMarkdown(msg.text)"></p>
-                @if (msg.offerPdf && msg.pdfType) {
+                @if (msg.type === 'pdf_pendiente') {
                   <button
                     type="button"
                     (click)="requestPdf(msg.pdfType!)"
