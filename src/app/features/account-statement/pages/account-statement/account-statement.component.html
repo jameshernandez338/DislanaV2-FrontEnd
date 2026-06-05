@@ -1,0 +1,93 @@
+<div class="mx-auto w-full max-w-[1280px] px-4 py-6 md:px-6 md:py-8">
+
+  <!-- Header + filtros -->
+  <div class="mb-6 flex flex-col gap-4">
+    <h1 class="text-[clamp(1.7rem,4vw,1.7rem)] font-semibold tracking-[-0.04em] text-[#0f1a2c]">
+      Extracto Cartera
+    </h1>
+
+    <div class="flex flex-wrap items-end gap-4">
+      <div class="flex flex-col gap-1">
+        <label class="text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-slate-500">
+          Fecha inicial
+        </label>
+        <input
+          type="date"
+          [(ngModel)]="startDate"
+          class="h-9 rounded border border-slate-200 bg-white px-3 text-sm text-slate-700 focus:border-slate-400 focus:outline-none"
+        />
+      </div>
+
+      <div class="flex flex-col gap-1">
+        <label class="text-[0.7rem] font-semibold uppercase tracking-[0.12em] text-slate-500">
+          Fecha final
+        </label>
+        <input
+          type="date"
+          [(ngModel)]="endDate"
+          class="h-9 rounded border border-slate-200 bg-white px-3 text-sm text-slate-700 focus:border-slate-400 focus:outline-none"
+        />
+      </div>
+
+      <button
+        type="button"
+        (click)="onSearch()"
+        class="inline-flex h-9 items-center justify-center bg-[#141b2d] px-5 text-[0.82rem] font-semibold text-white transition hover:bg-black"
+      >
+        Consultar
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabla -->
+  <section class="overflow-hidden border border-slate-200 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.06)]">
+    <div class="border-b border-slate-200 bg-slate-50 px-5 py-3 md:px-6">
+      <div class="flex flex-wrap items-center gap-3">
+        <h2 class="text-[1.02rem] font-semibold tracking-[0.02em] text-[#0f1a2c]">Movimientos</h2>
+        <span class="rounded-full bg-white px-2.5 py-1 text-[0.74rem] font-semibold uppercase tracking-[0.14em] text-slate-500">
+          {{ items.length }} registros
+        </span>
+      </div>
+    </div>
+
+    @if (items.length > 0) {
+      <div class="overflow-x-auto">
+        <table class="min-w-[900px] w-full border-collapse">
+          <thead class="bg-white">
+            <tr class="text-left text-[0.7rem] uppercase tracking-[0.12em] text-slate-400">
+              <th class="whitespace-nowrap px-3 py-2.5 font-semibold md:px-4">Fecha documento</th>
+              <th class="whitespace-nowrap px-3 py-2.5 font-semibold">Fecha vencimiento</th>
+              <th class="whitespace-nowrap px-3 py-2.5 font-semibold">Número documento</th>
+              <th class="whitespace-nowrap px-3 py-2.5 font-semibold">Tipo documento</th>
+              <th class="whitespace-nowrap px-3 py-2.5 font-semibold text-right">Valor</th>
+              <th class="whitespace-nowrap px-3 py-2.5 font-semibold text-right md:px-4">Saldo</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of items; track row.documentNumber + row.documentDate) {
+              <tr class="border-t border-slate-200 text-[0.88rem] leading-5 text-slate-700 odd:bg-slate-50/60">
+                <td class="whitespace-nowrap px-3 py-2 md:px-4">{{ formatDate(row.documentDate) }}</td>
+                <td class="whitespace-nowrap px-3 py-2">{{ formatDate(row.dueDate) }}</td>
+                <td class="whitespace-nowrap px-3 py-2 font-medium text-slate-900">{{ row.documentNumber }}</td>
+                <td class="whitespace-nowrap px-3 py-2">{{ row.documentType }}</td>
+                <td class="whitespace-nowrap px-3 py-2 text-right">
+                  <span [class]="row.type === '+' ? 'font-semibold text-green-600' : 'font-semibold text-red-600'">{{ row.type }} {{ formatCurrency(row.value) }}</span>
+                </td>
+                <td class="whitespace-nowrap px-3 py-2 text-right font-semibold text-slate-900 md:px-4">
+                  {{ formatCurrency(row.balance) }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="px-5 py-8 text-sm text-slate-500 md:px-6">
+        No hay registros para el período seleccionado.
+      </div>
+    }
+  </section>
+
+</div>
+
+<app-loading-spinner [show]="loading" message="Cargando extracto de cartera..."></app-loading-spinner>

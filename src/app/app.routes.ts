@@ -61,6 +61,18 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/transactions/pages/transactions-page/transactions-page.component')
             .then(m => m.TransactionsPageComponent)
+      },
+      {
+        path: 'extracto-cartera',
+        loadComponent: () =>
+          import('./features/account-statement/pages/account-statement/account-statement.component')
+            .then(m => m.AccountStatementComponent)
+      },
+      {
+        path: 'pqr',
+        loadComponent: () =>
+          import('./features/pqr/pages/pqr-page/pqr-page.component')
+            .then(m => m.PqrPageComponent)
       }
     ]
   }

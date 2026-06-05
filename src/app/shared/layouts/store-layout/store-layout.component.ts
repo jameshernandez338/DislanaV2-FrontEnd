@@ -72,7 +72,7 @@ export class StoreLayoutComponent {
         route: '/extracto-inventario',
         active: currentUrl.startsWith('/extracto-inventario')
       },
-      { id: 'portfolio', label: 'Extracto Cartera', icon: 'portfolio', route: '/home' },
+      { id: 'portfolio', label: 'Extracto Cartera', icon: 'portfolio', route: '/extracto-cartera', active: currentUrl.startsWith('/extracto-cartera') },
       {
         id: 'collection',
         label: 'Nueva Coleccion',
