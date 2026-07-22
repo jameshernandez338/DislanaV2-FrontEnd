@@ -1,4 +1,5 @@
 export interface QuoteItem {
+  grupo: string;
   documento: string;
   imagen: string;
   codigo: string;
@@ -11,6 +12,7 @@ export interface QuoteItem {
   cotizar?: boolean;
   cantidad: number;
   precioTotal: number;
+  precioAnticipo: number;
 }
 
 export interface QuoteCustomerTaxes {

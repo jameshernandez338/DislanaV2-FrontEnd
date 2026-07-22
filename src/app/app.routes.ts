@@ -13,6 +13,18 @@ export const routes: Routes = [
       import('./features/auth/auth.routes').then(m => m.AUTH_ROUTES)
   },
   {
+    path: 'terminos-condiciones',
+    loadComponent: () =>
+      import('./features/legal/pages/terms-and-conditions/terms-and-conditions.component')
+        .then(m => m.TermsAndConditionsComponent)
+  },
+  {
+    path: 'tratamiento-datos',
+    loadComponent: () =>
+      import('./features/legal/pages/data-processing/data-processing.component')
+        .then(m => m.DataProcessingComponent)
+  },
+  {
     path: 'cotizar/recibo',
     canActivate: [AuthGuard],
     loadComponent: () =>

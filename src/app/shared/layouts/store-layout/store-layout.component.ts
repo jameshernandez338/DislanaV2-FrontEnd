@@ -49,6 +49,11 @@ export class StoreLayoutComponent {
     const currentPath = currentTree.root.children['primary']?.segments.map((segment) => segment.path).join('/') || '';
     const currentType = currentTree.queryParams['type'] || 'home';
 
+    const movimientosActive =
+      currentUrl.startsWith('/extracto-inventario') ||
+      currentUrl.startsWith('/extracto-cartera') ||
+      currentUrl.startsWith('/transactions');
+
     return [
       {
         id: 'home',
@@ -66,13 +71,34 @@ export class StoreLayoutComponent {
         active: currentUrl.startsWith('/cotizar') 
       },
       {
-        id: 'inventory',
-        label: 'Extracto Inventario',
-        icon: 'inventory',
-        route: '/extracto-inventario',
-        active: currentUrl.startsWith('/extracto-inventario')
+        id: 'movimientos',
+        label: 'Movimientos',
+        icon: 'clipboardList',
+        active: movimientosActive,
+        children: [
+          {
+            id: 'inventory',
+            label: 'Extracto Inventario',
+            icon: 'inventory',
+            route: '/extracto-inventario',
+            active: currentUrl.startsWith('/extracto-inventario')
+          },
+          {
+            id: 'portfolio',
+            label: 'Extracto Cartera',
+            icon: 'portfolio',
+            route: '/extracto-cartera',
+            active: currentUrl.startsWith('/extracto-cartera')
+          },
+          {
+            id: 'transactions',
+            label: 'Otros Movimientos',
+            icon: 'clipboardList',
+            route: '/transactions',
+            active: currentUrl.startsWith('/transactions')
+          }
+        ]
       },
-      { id: 'portfolio', label: 'Extracto Cartera', icon: 'portfolio', route: '/extracto-cartera', active: currentUrl.startsWith('/extracto-cartera') },
       {
         id: 'collection',
         label: 'Nueva Coleccion',
@@ -80,13 +106,6 @@ export class StoreLayoutComponent {
         route: '/home',
         queryParams: { type: 'new' },
         active: currentPath === 'home' && currentType === 'new'
-      },
-      { 
-        id: 'transactions', 
-        label: 'Movimientos', 
-        icon: 'clipboardList', 
-        route: '/transactions', 
-        active: currentUrl.startsWith('/transactions') 
       },
     ];
   }

@@ -71,7 +71,7 @@
                 <td class="whitespace-nowrap px-3 py-2 font-medium text-slate-900">{{ row.documentNumber }}</td>
                 <td class="whitespace-nowrap px-3 py-2">{{ row.documentType }}</td>
                 <td class="whitespace-nowrap px-3 py-2 text-right">
-                  <span [class]="row.type === '+' ? 'font-semibold text-green-600' : 'font-semibold text-red-600'">{{ row.type }} {{ formatCurrency(row.value) }}</span>
+                  <span [class]="row.type === '+' ? 'font-semibold text-green-600' : 'font-semibold text-red-600'">{{ formatCurrency(row.value) }}</span>
                 </td>
                 <td class="whitespace-nowrap px-3 py-2 text-right font-semibold text-slate-900 md:px-4">
                   {{ formatCurrency(row.balance) }}

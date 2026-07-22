@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { StockService } from '@core/services/stock.service';
 import { SnackbarService } from '@core/services/snackbar.service';
@@ -29,7 +30,8 @@ export class InventoryStatementComponent implements OnInit {
   constructor(
     private stockService: StockService,
     private snackbarService: SnackbarService,
-    private numberFormatService: NumberFormatService
+    private numberFormatService: NumberFormatService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -112,7 +114,7 @@ export class InventoryStatementComponent implements OnInit {
   }
 
   private handlePendingInvoicesAction() {
-    this.snackbarService.show('Accion de pendientes por facturar pendiente por implementar.', 'info');
+    this.router.navigate(['/cotizar']);
   }
 
   private handlePendingDispatchAction() {

@@ -262,7 +262,8 @@ export class QuoteListComponent implements OnInit, OnDestroy {
 
   openDetail(item: QuoteItem) {
     this.selectedQuoteDetailItem = item;
-    this.quoteDetailRows = this.quoteItems.filter((quoteItem) => quoteItem.codigo === item.codigo);
+    this.quoteDetailRows = this.quoteItems.filter((quoteItem) => quoteItem.codigo === item.codigo &&
+               quoteItem.documento === item.documento);
     this.showQuoteDetailModal = true;
   }
 

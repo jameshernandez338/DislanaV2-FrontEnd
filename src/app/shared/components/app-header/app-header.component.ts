@@ -2,16 +2,17 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
-import { Bell, FileText, House, LucideAngularModule, Menu, ReceiptText, ShoppingCart, UserRound, X } from 'lucide-angular';
+import { Bell, ChevronDown, FileText, House, LucideAngularModule, Menu, ReceiptText, ShoppingCart, UserRound, X } from 'lucide-angular';
 import { ClipboardList } from 'lucide-angular/src/icons';
 
 export interface HeaderMenuItem {
   id: string;
   label: string;
   icon: 'home' | 'quote' | 'inventory' | 'portfolio' | 'collection' | 'clipboardList';
-  route: string;
+  route?: string;
   queryParams?: Record<string, string>;
   active?: boolean;
+  children?: HeaderMenuItem[];
 }
 
 @Component({
@@ -29,7 +30,8 @@ export class AppHeaderComponent {
   @Output() logout = new EventEmitter<void>();
   @Output() cartToggle = new EventEmitter<void>();
   showMobileMenu = false;
-  userName  = this.authService.getFullName(); 
+  openDropdown: string | null = null;
+  userName = this.authService.getFullName();
 
   icons = {
     home: House,
@@ -41,7 +43,8 @@ export class AppHeaderComponent {
     cart: ShoppingCart,
     menu: Menu,
     close: X,
-    clipboardList: ClipboardList
+    clipboardList: ClipboardList,
+    chevronDown: ChevronDown
   };
 
   toggleMobileMenu() {
@@ -50,5 +53,13 @@ export class AppHeaderComponent {
 
   closeMobileMenu() {
     this.showMobileMenu = false;
+  }
+
+  toggleDropdown(id: string) {
+    this.openDropdown = this.openDropdown === id ? null : id;
+  }
+
+  closeDropdown() {
+    this.openDropdown = null;
   }
 }

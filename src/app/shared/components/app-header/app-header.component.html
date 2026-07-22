@@ -12,15 +12,46 @@
 
       <nav class="hidden md:flex items-center justify-center gap-8 text-lg absolute left-1/2 -translate-x-1/2 whitespace-nowrap">
         @for (menu of menus; track menu.id) {
-          <a
-            [routerLink]="menu.route"
-            [queryParams]="menu.queryParams"
-            class="flex items-center gap-1.5 text-[17px] transition whitespace-nowrap shrink-0"
-            [ngClass]="menu.active ? 'text-blue-600' : 'text-slate-900 hover:text-slate-700'"
-          >
-            <lucide-icon [name]="icons[menu.icon]" class="w-4 h-4"></lucide-icon>
-            <span>{{ menu.label }}</span>
-          </a>
+          @if (menu.children?.length) {
+            <div class="relative">
+              <button
+                type="button"
+                (click)="toggleDropdown(menu.id)"
+                class="flex items-center gap-1.5 text-[17px] transition whitespace-nowrap shrink-0"
+                [ngClass]="menu.active ? 'text-blue-600' : 'text-slate-900 hover:text-slate-700'"
+              >
+                <lucide-icon [name]="icons[menu.icon]" class="w-4 h-4"></lucide-icon>
+                <span>{{ menu.label }}</span>
+                <lucide-icon [name]="icons.chevronDown" class="w-3.5 h-3.5 transition-transform" [ngClass]="openDropdown === menu.id ? 'rotate-180' : ''"></lucide-icon>
+              </button>
+              @if (openDropdown === menu.id) {
+                <div class="absolute top-full left-0 mt-2 w-52 bg-white rounded-xl border border-slate-200 shadow-xl py-1 z-[50]">
+                  @for (child of menu.children; track child.id) {
+                    <a
+                      [routerLink]="child.route"
+                      [queryParams]="child.queryParams"
+                      (click)="closeDropdown()"
+                      class="flex items-center gap-2 px-4 py-2.5 text-sm transition"
+                      [ngClass]="child.active ? 'text-blue-600 bg-blue-50' : 'text-slate-700 hover:bg-slate-50'"
+                    >
+                      <lucide-icon [name]="icons[child.icon]" class="w-4 h-4"></lucide-icon>
+                      <span>{{ child.label }}</span>
+                    </a>
+                  }
+                </div>
+              }
+            </div>
+          } @else {
+            <a
+              [routerLink]="menu.route"
+              [queryParams]="menu.queryParams"
+              class="flex items-center gap-1.5 text-[17px] transition whitespace-nowrap shrink-0"
+              [ngClass]="menu.active ? 'text-blue-600' : 'text-slate-900 hover:text-slate-700'"
+            >
+              <lucide-icon [name]="icons[menu.icon]" class="w-4 h-4"></lucide-icon>
+              <span>{{ menu.label }}</span>
+            </a>
+          }
         }
       </nav>
 
@@ -66,6 +97,10 @@
   </div>
 </header>
 
+@if (openDropdown) {
+  <div class="fixed inset-0 z-[29]" (click)="closeDropdown()"></div>
+}
+
 @if (showMobileMenu) {
   <button
     type="button"
@@ -89,16 +124,47 @@
 
     <nav class="p-4 flex flex-col gap-4">
       @for (menu of menus; track menu.id) {
-        <a
-          [routerLink]="menu.route"
-          [queryParams]="menu.queryParams"
-          (click)="closeMobileMenu()"
-          class="flex items-center gap-2 text-sm transition"
-          [ngClass]="menu.active ? 'text-blue-600' : 'text-slate-900 hover:text-slate-700'"
-        >
-          <lucide-icon [name]="icons[menu.icon]" class="w-4 h-4"></lucide-icon>
-          <span>{{ menu.label }}</span>
-        </a>
+        @if (menu.children?.length) {
+          <div>
+            <button
+              type="button"
+              (click)="toggleDropdown(menu.id)"
+              class="flex items-center gap-2 text-sm transition w-full"
+              [ngClass]="menu.active ? 'text-blue-600' : 'text-slate-900 hover:text-slate-700'"
+            >
+              <lucide-icon [name]="icons[menu.icon]" class="w-4 h-4"></lucide-icon>
+              <span class="flex-1 text-left">{{ menu.label }}</span>
+              <lucide-icon [name]="icons.chevronDown" class="w-3.5 h-3.5 transition-transform" [ngClass]="openDropdown === menu.id ? 'rotate-180' : ''"></lucide-icon>
+            </button>
+            @if (openDropdown === menu.id) {
+              <div class="mt-2 ml-6 flex flex-col gap-3">
+                @for (child of menu.children; track child.id) {
+                  <a
+                    [routerLink]="child.route"
+                    [queryParams]="child.queryParams"
+                    (click)="closeMobileMenu(); closeDropdown()"
+                    class="flex items-center gap-2 text-sm transition"
+                    [ngClass]="child.active ? 'text-blue-600' : 'text-slate-600 hover:text-slate-900'"
+                  >
+                    <lucide-icon [name]="icons[child.icon]" class="w-4 h-4"></lucide-icon>
+                    <span>{{ child.label }}</span>
+                  </a>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <a
+            [routerLink]="menu.route"
+            [queryParams]="menu.queryParams"
+            (click)="closeMobileMenu()"
+            class="flex items-center gap-2 text-sm transition"
+            [ngClass]="menu.active ? 'text-blue-600' : 'text-slate-900 hover:text-slate-700'"
+          >
+            <lucide-icon [name]="icons[menu.icon]" class="w-4 h-4"></lucide-icon>
+            <span>{{ menu.label }}</span>
+          </a>
+        }
       }
     </nav>
   </div>
