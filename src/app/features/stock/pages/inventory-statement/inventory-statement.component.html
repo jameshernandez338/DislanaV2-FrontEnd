@@ -57,10 +57,14 @@
                     </td>
                     @if (group === 'PEDIDOS PENDIENTES') {
                       <td class="whitespace-nowrap px-3 py-2 text-center md:px-4">
-                        <input
-                          type="checkbox"
-                          class="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400"
-                        />
+                        <button
+                          type="button"
+                          (click)="deleteRow(row)"
+                          class="inline-flex items-center justify-center rounded p-1.5 text-red-500 transition hover:bg-red-50 hover:text-red-700"
+                          title="Eliminar registro"
+                        >
+                          <lucide-icon [name]="icons.Trash2" class="h-4 w-4"></lucide-icon>
+                        </button>
                       </td>
                     }
                   </tr>
@@ -69,15 +73,17 @@
             </table>
           </div>
 
-          <div class="flex justify-end border-t border-slate-200 px-5 py-4 md:px-6">
-            <button
-              type="button"
-              (click)="onGroupAction(group)"
-              class="inline-flex h-9 w-[200px] items-center justify-center bg-[#141b2d] px-4 text-[0.82rem] font-semibold text-white transition hover:bg-black"
-            >
-              {{ getActionLabel(group) }}
-            </button>
-          </div>
+          @if (group !== 'PEDIDOS PENDIENTES') {
+            <div class="flex justify-end border-t border-slate-200 px-5 py-4 md:px-6">
+              <button
+                type="button"
+                (click)="onGroupAction(group)"
+                class="inline-flex h-9 w-[200px] items-center justify-center bg-[#141b2d] px-4 text-[0.82rem] font-semibold text-white transition hover:bg-black"
+              >
+                {{ getActionLabel(group) }}
+              </button>
+            </div>
+          }
         } @else {
           <div class="px-5 py-8 text-sm text-slate-500 md:px-6">
             No hay registros para este grupo.

@@ -131,6 +131,7 @@ export class QuoteListComponent implements OnInit, OnDestroy {
     const reteIvaRate = (this.customerTaxes?.reteIva ?? 0) / 100;
     const reteIcaRate = this.applyReteIca ? ((this.customerTaxes?.reteIca ?? 0) / 100) : 0;
     const saldoAFavor = this.customerTaxes?.saldoAFavor ?? 0;
+    const precioAnticipo = 0;
     const carteraVencida = this.customerTaxes?.cartera ?? 0;
     const apin = this.customerTaxes?.apin ?? 0;
     const usaCupo = this.customerTaxes?.usaCupo === true;
@@ -169,6 +170,7 @@ export class QuoteListComponent implements OnInit, OnDestroy {
       reteIva,
       reteIca,
       saldoAFavor,
+      precioAnticipo,
       carteraVencida,
       apin,
       totalItemsEImpuestos,
@@ -210,6 +212,10 @@ export class QuoteListComponent implements OnInit, OnDestroy {
 
   get reteIcaToPay(): number {
     return this.totales.reteIca;
+  }
+
+  get anticipoToPay(): number {
+    return this.totales.precioAnticipo;
   }
 
   get carteraToPay(): number {

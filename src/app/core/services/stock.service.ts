@@ -24,4 +24,12 @@ export class StockService {
   getInventoryStatement(): Observable<InventoryStatementItem[]> {
     return this.http.get<InventoryStatementItem[]>(`${this.apiUrl}/statement`);
   }
+
+  cancelOrder(document: string, item: string): Observable<void> {
+    const params = new HttpParams()
+      .set('document', document)
+      .set('item', item);
+
+    return this.http.delete<void>(`${this.apiUrl}/cancel-order`, { params });
+  }
 }

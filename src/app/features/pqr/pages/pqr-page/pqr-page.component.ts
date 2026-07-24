@@ -13,8 +13,20 @@ type PqrType = 'Pregunta' | 'Queja' | 'Reclamo';
 export class PqrPageComponent {
   readonly pqrTypes: PqrType[] = ['Pregunta', 'Queja', 'Reclamo'];
 
+  readonly claimReasons: string[] = [
+    'ANULACION DE LA PROGRAMACION',
+    'DECLINO LA COMPRA',
+    'DEVOLUCION DE DINERO',
+    'ITEM ENVIADO EQUIVOCADO',
+    'ITEM MAL CODIFICADO',
+    'PRODUCTO DEFECTUOSO',
+    'DESPACHO INCOMPLETO',
+    'PROCTO DEFECTUOSO PARA REPROCESO',
+    'EXTRAVIO DE MERCANCIA'
+  ];
+
   type: PqrType = 'Pregunta';
-  subject = '';
+  claimReason = '';
   message = '';
   submitted = false;
   loading = false;
@@ -22,7 +34,11 @@ export class PqrPageComponent {
   readonly icons = { send: Send, check: CheckCircle };
 
   onSubmit(): void {
-    if (!this.subject.trim() || !this.message.trim()) {
+    if (this.type === 'Reclamo' && !this.claimReason) {
+      return;
+    }
+
+    if (!this.message.trim()) {
       return;
     }
 
@@ -37,7 +53,7 @@ export class PqrPageComponent {
 
   onNew(): void {
     this.type = 'Pregunta';
-    this.subject = '';
+    this.claimReason = '';
     this.message = '';
     this.submitted = false;
   }
