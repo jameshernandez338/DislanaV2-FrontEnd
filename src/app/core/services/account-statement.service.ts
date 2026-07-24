@@ -15,10 +15,14 @@ export class AccountStatementService {
     private appConfig: AppConfigService
   ) {}
 
-  getAccountStatement(startDate: Date, endDate: Date): Observable<AccountStatementItem[]> {
-    const params = new HttpParams()
+  getAccountStatement(startDate: Date, endDate: Date, documentType?: string): Observable<AccountStatementItem[]> {
+    let params = new HttpParams()
       .set('startDate', startDate.toISOString())
       .set('endDate', endDate.toISOString());
+
+    if (documentType) {
+      params = params.set('documentType', documentType);
+    }
 
     return this.http.get<AccountStatementItem[]>(this.apiUrl, { params });
   }

@@ -19,6 +19,14 @@ export class AccountStatementComponent implements OnInit {
 
   loading = false;
   items: AccountStatementItem[] = [];
+  documentTypeFilter = '';
+
+  readonly documentTypeOptions = [
+    'FACTURA DE VENTA',
+    'NOTA CRÉDITO',
+    'NOTA DEBITO',
+    'RECIBO DE PAGO'
+  ];
 
   startDate: string;
   endDate: string;
@@ -62,7 +70,7 @@ export class AccountStatementComponent implements OnInit {
     const start = new Date(this.startDate + 'T00:00:00');
     const end = new Date(this.endDate + 'T23:59:59');
 
-    this.accountStatementService.getAccountStatement(start, end)
+    this.accountStatementService.getAccountStatement(start, end, this.documentTypeFilter || undefined)
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         finalize(() => { this.loading = false; })

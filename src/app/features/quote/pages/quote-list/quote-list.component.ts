@@ -63,6 +63,8 @@ export class QuoteListComponent implements OnInit, OnDestroy {
   showBalanceDetailModal = false;
   showQuoteDetailModal = false;
   showCupoTooltip = false;
+  showAnticipoTooltipKey = '';
+  anticipoTooltipPosition = { top: 0, right: 0 };
   creatingPayment = false;
   printingReceipt = false;
   applyReteIca = true;
@@ -107,15 +109,40 @@ export class QuoteListComponent implements OnInit, OnDestroy {
     }
 
     this.showCupoTooltip = false;
+    this.showAnticipoTooltipKey = '';
   }
 
   getImageUrl(item: QuoteItem): string {
     return item.imagen || '/images/categories/school.png';
   }
 
+  isAnticipoItem(item: QuoteItem): boolean {
+    return !this.shouldShowDetailAction(item) && item.grupo === 'PEDIDOS PENDIENTES';
+  }
+
+  getItemKey(item: QuoteItem): string {
+    return `${item.documento}_${item.codigo}`;
+  }
+
+  toggleAnticipoTooltip(item: QuoteItem, event: MouseEvent): void {
+    event.stopPropagation();
+    const key = this.getItemKey(item);
+    if (this.showAnticipoTooltipKey === key) {
+      this.showAnticipoTooltipKey = '';
+      return;
+    }
+    const button = event.currentTarget as HTMLButtonElement;
+    const rect = button.getBoundingClientRect();
+    this.anticipoTooltipPosition = {
+      top: rect.bottom + 6,
+      right: window.innerWidth - rect.right
+    };
+    this.showAnticipoTooltipKey = key;
+  }
+
   get selectedItemsTotal(): number {
     return this.quoteItems
-      .filter((item) => item.cotizar)
+      .filter((item) => item.cotizar && !this.isAnticipoItem(item))
       .reduce((total, item) => total + (item.precioTotal ?? 0), 0);
   }
 
@@ -131,7 +158,9 @@ export class QuoteListComponent implements OnInit, OnDestroy {
     const reteIvaRate = (this.customerTaxes?.reteIva ?? 0) / 100;
     const reteIcaRate = this.applyReteIca ? ((this.customerTaxes?.reteIca ?? 0) / 100) : 0;
     const saldoAFavor = this.customerTaxes?.saldoAFavor ?? 0;
-    const precioAnticipo = 0;
+    const precioAnticipo = this.quoteItems
+      .filter((item) => item.cotizar && this.isAnticipoItem(item))
+      .reduce((sum, item) => sum + (item.precioAnticipo ?? 0), 0);
     const carteraVencida = this.customerTaxes?.cartera ?? 0;
     const apin = this.customerTaxes?.apin ?? 0;
     const usaCupo = this.customerTaxes?.usaCupo === true;
@@ -156,7 +185,8 @@ export class QuoteListComponent implements OnInit, OnDestroy {
     const cupoAplicadoItemsEImpuestos = usaCupo
       ? Math.min(cupoDisponibleDespuesApin, Math.max(totalItemsEImpuestos, 0))
       : 0;
-    const total = carteraVencida
+    const total = precioAnticipo
+      + carteraVencida
       + apinPendiente
       + Math.max(totalItemsEImpuestos - cupoAplicadoItemsEImpuestos, 0)
       + abono;
@@ -546,6 +576,7 @@ export class QuoteListComponent implements OnInit, OnDestroy {
     const totals = this.totales;
 
     this.addPaymentDetailItem(paymentDetails, 'Subtotal', 'Subtotal', totals.subtotal);
+    this.addPaymentDetailItem(paymentDetails, 'Anticipo', 'Anticipo', totals.precioAnticipo);
     this.addPaymentDetailItem(paymentDetails, 'Descuentos', 'Descuentos', totals.descuentos);
     this.addPaymentDetailItem(paymentDetails, 'IVA', 'Impuesto IVA', totals.iva);
     this.addPaymentDetailItem(paymentDetails, 'ReteFuente', 'Rete Fuente', totals.reteFuente);
