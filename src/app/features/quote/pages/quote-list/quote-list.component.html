@@ -43,8 +43,8 @@
                 <td class="whitespace-nowrap px-3 py-2 font-medium text-slate-900">{{ row.documento }}</td>
                 <td class="whitespace-nowrap px-3 py-2">{{ row.codigo }}</td>
                 <td class="whitespace-nowrap px-3 py-2">{{ row.descripcion }}</td>
-                <td class="whitespace-nowrap px-3 py-2">{{ row.acabado }}</td>
                 <td class="whitespace-nowrap px-3 py-2">{{ row.calidad }}</td>
+                <td class="whitespace-nowrap px-3 py-2">{{ row.acabado }}</td>
                 <td class="whitespace-nowrap px-3 py-2">{{ row.linea }}</td>
                 <td class="whitespace-nowrap px-3 py-2 text-right">{{ formatNumber(row.saldo) }}</td>
                 <td class="whitespace-nowrap px-3 py-2 text-right font-semibold text-slate-900">
@@ -190,11 +190,6 @@
 
             <div class="flex items-center justify-between gap-4">
               <label class="inline-flex items-center gap-2.5 text-[0.92rem] font-medium text-slate-800">
-                <input
-                  type="checkbox"
-                  [(ngModel)]="applyReteIca"
-                  class="app-checkbox"
-                />
                 <span>Aplicar Rete ICA</span>
               </label>
               <span class="font-semibold text-slate-900">{{ formatCurrency(reteIcaToPay) }}</span>

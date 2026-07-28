@@ -67,7 +67,6 @@ export class QuoteListComponent implements OnInit, OnDestroy {
   anticipoTooltipPosition = { top: 0, right: 0 };
   creatingPayment = false;
   printingReceipt = false;
-  applyReteIca = true;
   applyAbono = false;
   abonoAmount = 0;
   abonoInput = '';
@@ -156,7 +155,8 @@ export class QuoteListComponent implements OnInit, OnDestroy {
     const ivaRate = (this.customerTaxes?.iva ?? 0) / 100;
     const reteFuenteRate = (this.customerTaxes?.reteFuente ?? 0) / 100;
     const reteIvaRate = (this.customerTaxes?.reteIva ?? 0) / 100;
-    const reteIcaRate = this.applyReteIca ? ((this.customerTaxes?.reteIca ?? 0) / 100) : 0;
+    const reteIcaRate = ((this.customerTaxes?.reteIca ?? 0) / 100);
+    const reteIcaBase = this.customerTaxes?.baseReteIca ?? 0;
     const saldoAFavor = this.customerTaxes?.saldoAFavor ?? 0;
     const precioAnticipo = this.quoteItems
       .filter((item) => item.cotizar && this.isAnticipoItem(item))
@@ -171,7 +171,8 @@ export class QuoteListComponent implements OnInit, OnDestroy {
     const iva = (subtotal - descuentos) * ivaRate;
     const reteFuente = (subtotal - descuentos + iva) * reteFuenteRate;
     const reteIva = iva > 524000 ? iva * reteIvaRate : 0;
-    const reteIca = (subtotal - descuentos) * reteIcaRate;
+    debugger;
+    const reteIca = (subtotal - descuentos + iva) > reteIcaBase ? (subtotal - descuentos) * reteIcaRate : 0;
     const apinCubiertoPorCupo = usaCupo ? Math.min(cupo, Math.max(apin, 0)) : 0;
     const apinPendiente = Math.max(apin - apinCubiertoPorCupo, 0);
     const cupoDisponibleDespuesApin = Math.max(cupo - apinCubiertoPorCupo, 0);
@@ -416,7 +417,6 @@ export class QuoteListComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.applyReteIca = (this.customerTaxes?.reteIca ?? 0) > 0;
     this.applyAbono = false;
     this.abonoAmount = 0;
     this.abonoInput = '';
@@ -609,7 +609,7 @@ export class QuoteListComponent implements OnInit, OnDestroy {
     return this.selectedQuoteItems.map((quoteItem) => ({
       Tipo: 'item',
       Documento: quoteItem.documento,
-      Item: `${quoteItem.codigo} - ${quoteItem.descripcion}`,
+      Item: quoteItem.codigo,
       Cantidad: Number(quoteItem.cantidad || 0),
       Valor: Number(quoteItem.precioTotal || 0)
     }));

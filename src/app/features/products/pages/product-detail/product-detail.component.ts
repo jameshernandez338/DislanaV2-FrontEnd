@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CartService } from '@core/services/cart.service';
 import { ProductService } from '@core/services/product.service';
 import { SnackbarService } from '@core/services/snackbar.service';
@@ -23,6 +23,7 @@ export class ProductDetailComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private productService: ProductService,
     private cartService: CartService,
     private snackbarService: SnackbarService,
@@ -212,6 +213,7 @@ export class ProductDetailComponent implements OnInit {
     this.snackbarService.show('Producto agregado al carrito.', 'success');
     this.quantityA = 0;
     this.quantityB = 0;
+    this.router.navigate(['/']);
   }
 
   private loadProductDetail(codigoItem: string) {
