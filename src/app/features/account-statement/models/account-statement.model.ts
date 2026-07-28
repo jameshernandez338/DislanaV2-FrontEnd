@@ -7,3 +7,10 @@ export interface AccountStatementItem {
   documentType: string;
   type: string;
 }
+
+export interface AccountStatementDetailDto {
+  date: string;
+  documentNumber: string;
+  value: number;
+  documentType: string;
+}

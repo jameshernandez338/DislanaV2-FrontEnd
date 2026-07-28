@@ -1,5 +1,5 @@
 import { CommonModule, DOCUMENT } from '@angular/common';
-import { Component, DestroyRef, ElementRef, HostListener, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
+import { Component, DestroyRef, ElementRef, HostListener, OnDestroy, OnInit, ViewChild, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -57,8 +57,8 @@ export class QuoteListComponent implements OnInit, OnDestroy {
   }
 
   loading = false;
-  quoteItems: QuoteItem[] = [];
-  customerTaxes: QuoteCustomerTaxes | null = null;
+  quoteItems = signal<QuoteItem[]>([]);
+  customerTaxes = signal<QuoteCustomerTaxes | null>(null);
   showPaymentDrawer = false;
   showBalanceDetailModal = false;
   showQuoteDetailModal = false;
@@ -67,8 +67,8 @@ export class QuoteListComponent implements OnInit, OnDestroy {
   anticipoTooltipPosition = { top: 0, right: 0 };
   creatingPayment = false;
   printingReceipt = false;
-  applyAbono = false;
-  abonoAmount = 0;
+  applyAbono = signal(false);
+  abonoAmount = signal(0);
   abonoInput = '';
   isEditingAbono = false;
   loadingBalanceDetail = false;
@@ -139,39 +139,40 @@ export class QuoteListComponent implements OnInit, OnDestroy {
     this.showAnticipoTooltipKey = key;
   }
 
-  get selectedItemsTotal(): number {
-    return this.quoteItems
+  readonly selectedItemsTotal = computed(() =>
+    this.quoteItems()
       .filter((item) => item.cotizar && !this.isAnticipoItem(item))
-      .reduce((total, item) => total + (item.precioTotal ?? 0), 0);
-  }
+      .reduce((total, item) => total + (item.precioTotal ?? 0), 0)
+  );
 
-  get selectedQuoteItems(): QuoteItem[] {
-    return this.quoteItems.filter((item) => item.cotizar);
-  }
+  readonly selectedQuoteItems = computed(() =>
+    this.quoteItems().filter((item) => item.cotizar)
+  );
 
-  get totales() {
-    const subtotal = this.selectedItemsTotal;
-    const descuentoRate = (this.customerTaxes?.descuento ?? 0) / 100;
-    const ivaRate = (this.customerTaxes?.iva ?? 0) / 100;
-    const reteFuenteRate = (this.customerTaxes?.reteFuente ?? 0) / 100;
-    const reteIvaRate = (this.customerTaxes?.reteIva ?? 0) / 100;
-    const reteIcaRate = ((this.customerTaxes?.reteIca ?? 0) / 100);
-    const reteIcaBase = this.customerTaxes?.baseReteIca ?? 0;
-    const saldoAFavor = this.customerTaxes?.saldoAFavor ?? 0;
-    const precioAnticipo = this.quoteItems
+  readonly totales = computed(() => {
+    const subtotal = this.selectedItemsTotal();
+    const taxes = this.customerTaxes();
+    const descuentoRate = (taxes?.descuento ?? 0) / 100;
+    const ivaRate = (taxes?.iva ?? 0) / 100;
+    const reteFuenteRate = (taxes?.reteFuente ?? 0) / 100;
+    const reteIvaRate = (taxes?.reteIva ?? 0) / 100;
+    const reteIcaRate = (taxes?.reteIca ?? 0) / 100;
+    const reteIcaBase = taxes?.baseReteIca ?? 0;
+    const reteIvaBase = taxes?.baseReteIva ?? 0;
+    const saldoAFavor = taxes?.saldoAFavor ?? 0;
+    const precioAnticipo = this.quoteItems()
       .filter((item) => item.cotizar && this.isAnticipoItem(item))
       .reduce((sum, item) => sum + (item.precioAnticipo ?? 0), 0);
-    const carteraVencida = this.customerTaxes?.cartera ?? 0;
-    const apin = this.customerTaxes?.apin ?? 0;
-    const usaCupo = this.customerTaxes?.usaCupo === true;
-    const cupo = this.customerTaxes?.cupo ?? 0;
-    const abono = this.applyAbono ? this.abonoAmount : 0;
+    const carteraVencida = taxes?.cartera ?? 0;
+    const apin = taxes?.apin ?? 0;
+    const usaCupo = taxes?.usaCupo === true;
+    const cupo = taxes?.cupo ?? 0;
+    const abono = this.applyAbono() ? this.abonoAmount() : 0;
 
     const descuentos = subtotal * descuentoRate;
     const iva = (subtotal - descuentos) * ivaRate;
     const reteFuente = (subtotal - descuentos + iva) * reteFuenteRate;
-    const reteIva = iva > 524000 ? iva * reteIvaRate : 0;
-    debugger;
+    const reteIva = iva > reteIvaBase ? iva * reteIvaRate : 0;
     const reteIca = (subtotal - descuentos + iva) > reteIcaBase ? (subtotal - descuentos) * reteIcaRate : 0;
     const apinCubiertoPorCupo = usaCupo ? Math.min(cupo, Math.max(apin, 0)) : 0;
     const apinPendiente = Math.max(apin - apinCubiertoPorCupo, 0);
@@ -215,82 +216,82 @@ export class QuoteListComponent implements OnInit, OnDestroy {
       cupoDisponibleDespuesApin,
       abono
     };
-  }
+  });
 
   get shouldShowCupo(): boolean {
-    return this.totales.usaCupo;
+    return this.totales().usaCupo;
   }
 
   get subtotalToPay(): number {
-    return this.totales.subtotal;
+    return this.totales().subtotal;
   }
 
   get discountToPay(): number {
-    return this.totales.descuentos;
+    return this.totales().descuentos;
   }
 
   get ivaToPay(): number {
-    return this.totales.iva;
+    return this.totales().iva;
   }
 
   get reteFuenteToPay(): number {
-    return this.totales.reteFuente;
+    return this.totales().reteFuente;
   }
 
   get reteIvaToPay(): number {
-    return this.totales.reteIva;
+    return this.totales().reteIva;
   }
 
   get reteIcaToPay(): number {
-    return this.totales.reteIca;
+    return this.totales().reteIca;
   }
 
   get anticipoToPay(): number {
-    return this.totales.precioAnticipo;
+    return this.totales().precioAnticipo;
   }
 
   get carteraToPay(): number {
-    return this.totales.carteraVencida;
+    return this.totales().carteraVencida;
   }
 
   get apinToPay(): number {
-    return this.totales.apin;
+    return this.totales().apin;
   }
 
   get apinPendingToPay(): number {
-    return this.totales.apinPendiente;
+    return this.totales().apinPendiente;
   }
 
   get saldoAFavorToPay(): number {
-    return this.totales.saldoAFavor;
+    return this.totales().saldoAFavor;
   }
 
   get abonoToPay(): number {
-    return this.totales.abono;
+    return this.totales().abono;
   }
 
   get cupoToPay(): number {
-    return this.totales.cupo;
+    return this.totales().cupo;
   }
 
   get cupoUsedToPay(): number {
-    return this.totales.cupoUtilizado;
+    return this.totales().cupoUtilizado;
   }
 
   get cupoUsedForApinToPay(): number {
-    return this.totales.apinCubiertoPorCupo;
+    return this.totales().apinCubiertoPorCupo;
   }
 
   get cupoUsedForItemsToPay(): number {
-    return this.totales.cupoAplicadoItemsEImpuestos;
+    return this.totales().cupoAplicadoItemsEImpuestos;
   }
 
   get cupoRemainingToPay(): number {
-    return Math.max(this.totales.cupo - this.totales.cupoUtilizado, 0);
+    return Math.max(this.totales().cupo - this.totales().cupoUtilizado, 0);
   }
 
   get totalToPay(): number {
-    return this.totales.total;
+    return this.totales().total;
   }
 
   shouldShowDetailAction(item: QuoteItem): boolean {
@@ -299,7 +300,7 @@ export class QuoteListComponent implements OnInit, OnDestroy {
 
   openDetail(item: QuoteItem) {
     this.selectedQuoteDetailItem = item;
-    this.quoteDetailRows = this.quoteItems.filter((quoteItem) => quoteItem.codigo === item.codigo &&
+    this.quoteDetailRows = this.quoteItems().filter((quoteItem) => quoteItem.codigo === item.codigo &&
                quoteItem.documento === item.documento);
     this.showQuoteDetailModal = true;
   }
@@ -312,8 +313,9 @@ export class QuoteListComponent implements OnInit, OnDestroy {
 
   onCotizarChange(checked: boolean, item: QuoteItem) {
     item.cotizar = checked;
+    this.quoteItems.update(items => [...items]);
 
-    if (!checked && this.selectedQuoteItems.length === 0) {
+    if (!checked && this.selectedQuoteItems().length === 0) {
       this.showPaymentDrawer = false;
       this.unlockBodyScroll();
     }
@@ -395,13 +397,13 @@ export class QuoteListComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: ({ quotes, customerTaxes }) => {
-          this.quoteItems = quotes;
-          this.customerTaxes = customerTaxes;
+          this.quoteItems.set(quotes);
+          this.customerTaxes.set(customerTaxes);
         },
         error: (error) => {
           console.error('No se pudo cargar la lista de cotizacion.', error);
-          this.quoteItems = [];
-          this.customerTaxes = null;
+          this.quoteItems.set([]);
+          this.customerTaxes.set(null);
           this.snackbarService.show('No fue posible cargar la lista de cotizacion.', 'error');
         }
       });
@@ -417,8 +419,8 @@ export class QuoteListComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.applyAbono = false;
-    this.abonoAmount = 0;
+    this.applyAbono.set(false);
+    this.abonoAmount.set(0);
     this.abonoInput = '';
     this.isEditingAbono = false;
     this.showCupoTooltip = false;
@@ -427,15 +429,15 @@ export class QuoteListComponent implements OnInit, OnDestroy {
   }
 
   onApplyAbonoChange(checked: boolean) {
-    this.applyAbono = checked;
+    this.applyAbono.set(checked);
 
     if (checked) {
-      this.abonoInput = this.abonoAmount ? this.formatNumber(this.abonoAmount) : '';
+      this.abonoInput = this.abonoAmount() ? this.formatNumber(this.abonoAmount()) : '';
       this.isEditingAbono = true;
       return;
     }
 
-    this.abonoAmount = 0;
+    this.abonoAmount.set(0);
     this.abonoInput = '';
     this.isEditingAbono = false;
   }
@@ -444,32 +446,32 @@ export class QuoteListComponent implements OnInit, OnDestroy {
     const digitsOnly = (value ?? '').replace(/\D/g, '');
 
     if (!digitsOnly) {
-      this.abonoAmount = 0;
+      this.abonoAmount.set(0);
       this.abonoInput = '';
       return;
     }
 
-    this.abonoAmount = Number(digitsOnly);
-    this.abonoInput = this.formatNumber(this.abonoAmount);
+    this.abonoAmount.set(Number(digitsOnly));
+    this.abonoInput = this.formatNumber(this.abonoAmount());
   }
 
   commitAbonoAmount() {
-    if (!this.applyAbono) {
+    if (!this.applyAbono()) {
       return;
     }
 
-    const normalizedAmount = Number.isFinite(this.abonoAmount) ? this.abonoAmount : 0;
-    this.abonoAmount = Math.max(0, normalizedAmount);
-    this.abonoInput = this.abonoAmount ? this.formatNumber(this.abonoAmount) : '';
+    const normalizedAmount = Number.isFinite(this.abonoAmount()) ? this.abonoAmount() : 0;
+    this.abonoAmount.set(Math.max(0, normalizedAmount));
+    this.abonoInput = this.abonoAmount() ? this.formatNumber(this.abonoAmount()) : '';
     this.isEditingAbono = false;
   }
 
   enableAbonoEditing() {
-    if (!this.applyAbono) {
+    if (!this.applyAbono()) {
       return;
     }
 
-    this.abonoInput = this.abonoAmount ? this.formatNumber(this.abonoAmount) : '';
+    this.abonoInput = this.abonoAmount() ? this.formatNumber(this.abonoAmount()) : '';
     this.isEditingAbono = true;
   }
 
@@ -573,7 +575,7 @@ export class QuoteListComponent implements OnInit, OnDestroy {
 
   private buildPaymentDetailItems(): PaymentItem[] {
     const paymentDetails: PaymentItem[] = [];
-    const totals = this.totales;
+    const totals = this.totales();
 
     this.addPaymentDetailItem(paymentDetails, 'Subtotal', 'Subtotal', totals.subtotal);
     this.addPaymentDetailItem(paymentDetails, 'Anticipo', 'Anticipo', totals.precioAnticipo);
@@ -606,7 +608,7 @@ export class QuoteListComponent implements OnInit, OnDestroy {
   }
 
   private buildSelectedQuoteItems(): PaymentItem[] {
-    return this.selectedQuoteItems.map((quoteItem) => ({
+    return this.selectedQuoteItems().map((quoteItem) => ({
       Tipo: 'item',
       Documento: quoteItem.documento,
       Item: quoteItem.codigo,

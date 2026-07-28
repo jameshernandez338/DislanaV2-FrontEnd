@@ -27,6 +27,7 @@ export interface QuoteCustomerTaxes {
   cupo: number;
   usaCupo: boolean;
   baseReteIca: number;
+  baseReteIva: number;
 }
 
 export interface QuoteCustomerBalanceDetail {

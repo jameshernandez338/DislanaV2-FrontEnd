@@ -1,17 +1,17 @@
-<div class="mx-auto w-full max-w-[1290px] px-4 py-6 md:px-6 md:py-8">
+<div class="mx-auto w-full max-w-[1295px] px-4 py-6 md:px-6 md:py-8">
   <div class="mb-8 flex items-start justify-between gap-4">
     <h1 class="text-[clamp(1.7rem,4vw,1.7rem)] font-semibold tracking-[-0.04em] text-[#0f1a2c]">
       Pendientes por Facturar - Separar
     </h1>
     @if (shouldShowCupo) {
       <span class="whitespace-nowrap rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700">
-        Cupo {{ formatCurrency(customerTaxes?.cupo ?? 0) }}
+        Cupo {{ formatCurrency(customerTaxes()?.cupo ?? 0) }}
       </span>
     }
   </div>
 
   <section class="overflow-hidden border border-slate-200 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.06)]">
-    @if (quoteItems.length > 0) {
+    @if (quoteItems().length > 0) {
       <div class="overflow-x-auto">
         <table class="min-w-[1180px] w-full border-collapse">
           <thead class="bg-white">
@@ -31,7 +31,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (row of quoteItems; track row.documento + row.codigo) {
+            @for (row of quoteItems(); track row.documento + row.codigo) {
               <tr class="border-t border-slate-200 text-[0.88rem] leading-5 text-slate-700 odd:bg-slate-50/60">
                 <td class="px-3 py-2 md:px-4">
                   <img
@@ -290,13 +290,13 @@
                 <label class="inline-flex items-center gap-2.5 text-[0.92rem] font-medium text-slate-800">
                   <input
                     type="checkbox"
-                    [ngModel]="applyAbono"
+                    [ngModel]="applyAbono()"
                     (ngModelChange)="onApplyAbonoChange($event)"
                     class="app-checkbox"
                   />
                   <span>Realizar abono</span>
                 </label>
-                @if (applyAbono && isEditingAbono) {
+                @if (applyAbono() && isEditingAbono) {
                   <input
                     #abonoAmountInput
                     type="text"
@@ -312,10 +312,10 @@
                 } @else {
                   <span
                     class="font-semibold text-slate-900 transition"
-                    [class.cursor-pointer]="applyAbono"
-                    [class.decoration-dotted]="applyAbono"
-                    [class.hover:text-slate-700]="applyAbono"
-                    [attr.title]="applyAbono ? 'Doble clic para editar' : null"
+                    [class.cursor-pointer]="applyAbono()"
+                    [class.decoration-dotted]="applyAbono()"
+                    [class.hover:text-slate-700]="applyAbono()"
+                    [attr.title]="applyAbono() ? 'Doble clic para editar' : null"
                     (dblclick)="enableAbonoEditing()"
                   >
                     {{ formatCurrency(abonoToPay) }}

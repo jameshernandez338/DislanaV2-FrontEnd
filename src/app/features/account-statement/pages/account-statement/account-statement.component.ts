@@ -3,15 +3,16 @@ import { Component, DestroyRef, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { finalize } from 'rxjs';
+import { LucideAngularModule, Info, X } from 'lucide-angular';
 import { AccountStatementService } from '@core/services/account-statement.service';
 import { SnackbarService } from '@core/services/snackbar.service';
 import { LoadingSpinnerComponent } from '@shared/components/loading-spinner/loading-spinner.component';
 import { NumberFormatService } from '@shared/services/number-format.service';
-import { AccountStatementItem } from '../../models/account-statement.model';
+import { AccountStatementDetailDto, AccountStatementItem } from '../../models/account-statement.model';
 
 @Component({
   selector: 'app-account-statement',
-  imports: [CommonModule, FormsModule, LoadingSpinnerComponent],
+  imports: [CommonModule, FormsModule, LoadingSpinnerComponent, LucideAngularModule],
   templateUrl: './account-statement.component.html'
 })
 export class AccountStatementComponent implements OnInit {
@@ -20,6 +21,12 @@ export class AccountStatementComponent implements OnInit {
   loading = false;
   items: AccountStatementItem[] = [];
   documentTypeFilter = '';
+  showDetailModal = false;
+  loadingDetail = false;
+  detailLoadFailed = false;
+  selectedDetailItem: AccountStatementItem | null = null;
+  detailRows: AccountStatementDetailDto[] = [];
+  icons = { Info, X };
 
   readonly documentTypeOptions = [
     'FACTURA DE VENTA',
@@ -55,6 +62,37 @@ export class AccountStatementComponent implements OnInit {
 
   formatCurrency(value: number): string {
     return this.numberFormatService.formatCurrency(value);
+  }
+
+  openDetail(item: AccountStatementItem): void {
+    this.selectedDetailItem = item;
+    this.detailRows = [];
+    this.detailLoadFailed = false;
+    this.loadingDetail = true;
+    this.showDetailModal = true;
+
+    this.accountStatementService.getAccountStatementDetail(item.documentNumber)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => { this.loadingDetail = false; })
+      )
+      .subscribe({
+        next: (rows) => { this.detailRows = rows; },
+        error: (error) => {
+          console.error('Error loading account statement detail', error);
+          this.detailRows = [];
+          this.detailLoadFailed = true;
+          this.snackbarService.show('No fue posible cargar el detalle del documento.', 'error');
+        }
+      });
+  }
+
+  closeDetail(): void {
+    this.showDetailModal = false;
+    this.loadingDetail = false;
+    this.detailLoadFailed = false;
+    this.selectedDetailItem = null;
+    this.detailRows = [];
   }
 
   private toInputDate(date: Date): string {

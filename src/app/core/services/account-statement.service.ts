@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AppConfigService } from '../config/app-config.service';
-import { AccountStatementItem } from '../../features/account-statement/models/account-statement.model';
+import { AccountStatementItem, AccountStatementDetailDto } from '../../features/account-statement/models/account-statement.model';
 
 @Injectable({ providedIn: 'root' })
 export class AccountStatementService {
@@ -25,5 +25,9 @@ export class AccountStatementService {
     }
 
     return this.http.get<AccountStatementItem[]>(this.apiUrl, { params });
+  }
+
+  getAccountStatementDetail(documentNumber: string): Observable<AccountStatementDetailDto[]> {
+    return this.http.get<AccountStatementDetailDto[]>(`${this.apiUrl}/detail/${documentNumber}`);
   }
 }
