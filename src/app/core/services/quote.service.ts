@@ -7,6 +7,7 @@ import {
   PaymentResponse,
   QuoteCustomerBalanceDetail,
   QuoteCustomerTaxes,
+  QuoteDetailItem,
   QuoteItem,
   WompiPayment
 } from '../../features/quote/models/quote.model';
@@ -34,6 +35,10 @@ export class QuoteService {
     return this.http.get<QuoteCustomerBalanceDetail[]>(`${this.apiUrl}/customer-balance`, {
       params: { type }
     });
+  }
+
+  getQuoteDetail(item: string): Observable<QuoteDetailItem[]> {
+    return this.http.get<QuoteDetailItem[]>(`${this.apiUrl}/detail/${item}`);
   }
 
   createPayment(payload: PaymentRequest): Observable<WompiPayment> {

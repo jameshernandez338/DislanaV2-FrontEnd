@@ -18,6 +18,7 @@ import {
   PaymentResponse,
   QuoteCustomerBalanceDetail,
   QuoteCustomerTaxes,
+  QuoteDetailItem,
   QuoteItem,
   WompiPayment
 } from '../../models/quote.model';
@@ -77,7 +78,8 @@ export class QuoteListComponent implements OnInit, OnDestroy {
   selectedBalanceDetailTitle = '';
   balanceDetailRows: QuoteCustomerBalanceDetail[] = [];
   selectedQuoteDetailItem: QuoteItem | null = null;
-  quoteDetailRows: QuoteItem[] = [];
+  loadingQuoteDetail = false;
+  quoteDetailRows: QuoteDetailItem[] = [];
   icons = { PencilRuler, CreditCard, ChevronRight, CircleAlert, Printer, SquareMinus, X };
 
   constructor(
@@ -300,18 +302,37 @@ export class QuoteListComponent implements OnInit, OnDestroy {
 
   openDetail(item: QuoteItem) {
     this.selectedQuoteDetailItem = item;
-    this.quoteDetailRows = this.quoteItems().filter((quoteItem) => quoteItem.codigo === item.codigo &&
-               quoteItem.documento === item.documento);
+    this.quoteDetailRows = [];
+    this.loadingQuoteDetail = true;
     this.showQuoteDetailModal = true;
+
+    this.quoteService.getQuoteDetail(item.codigo)
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => {
+          this.loadingQuoteDetail = false;
+        })
+      )
+      .subscribe({
+        next: (rows) => {
+          this.quoteDetailRows = rows;
+        },
+        error: (error) => {
+          console.error('No se pudo cargar el detalle de la cotizacion.', error);
+          this.quoteDetailRows = [];
+          this.snackbarService.show('No fue posible cargar el detalle de la cotizacion.', 'error');
+        }
+      });
   }
 
   closeQuoteDetailModal() {
     this.showQuoteDetailModal = false;
     this.selectedQuoteDetailItem = null;
+    this.loadingQuoteDetail = false;
     this.quoteDetailRows = [];
   }
 
-  onCotizarChange(checked: boolean, item: QuoteItem) {
+  onCotizarChange(checked: boolean, item: QuoteDetailItem) {
     item.cotizar = checked;
     this.quoteItems.update(items => [...items]);
 
@@ -319,6 +340,21 @@ export class QuoteListComponent implements OnInit, OnDestroy {
       this.showPaymentDrawer = false;
       this.unlockBodyScroll();
     }
+  }
+
+  pedirFromDetail() {
+    if (this.selectedQuoteDetailItem) {
+      const selectedRows = this.quoteDetailRows.filter(r => r.cotizar);
+      if (selectedRows.length > 0) {
+        this.selectedQuoteDetailItem.cotizar = true;
+        this.selectedQuoteDetailItem.cantidad = selectedRows.reduce((sum, r) => sum + (r.cantidad ?? 0), 0);
+        this.selectedQuoteDetailItem.precioTotal = selectedRows.reduce((sum, r) => sum + (r.precioTotal ?? 0), 0);
+      } else {
+        this.selectedQuoteDetailItem.cotizar = false;
+      }
+      this.quoteItems.update(items => [...items]);
+    }
+    this.closeQuoteDetailModal();
   }
 
   closePaymentDetail() {
@@ -414,11 +450,6 @@ export class QuoteListComponent implements OnInit, OnDestroy {
   }
 
   openPaymentDetail() {
-    if (this.totalToPay === 0) {
-      this.snackbarService.show('El total a pagar debe ser diferente de cero para ver el detalle de pago.', 'warning');
-      return;
-    }
-
     this.applyAbono.set(false);
     this.abonoAmount.set(0);
     this.abonoInput = '';
@@ -476,8 +507,7 @@ export class QuoteListComponent implements OnInit, OnDestroy {
   }
 
   payOnline() {
-    if (this.totalToPay <= 0) {
-      this.snackbarService.show('El total a pagar debe ser diferente de cero para continuar con el pago en linea.', 'warning');
+    if (!this.validateSelectedItemsForPayment()) {
       return;
     }
 
@@ -507,8 +537,7 @@ export class QuoteListComponent implements OnInit, OnDestroy {
   }
 
   async printReceipt() {
-    if (this.totalToPay <= 0) {
-      this.snackbarService.show('El total a pagar debe ser diferente de cero para imprimir el recibo.', 'warning');
+    if (!this.validateSelectedItemsForPayment()) {
       return;
     }
 
@@ -553,6 +582,15 @@ export class QuoteListComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.unlockBodyScroll();
+  }
+
+  private validateSelectedItemsForPayment(): boolean {
+    const items = this.selectedQuoteItems();
+    if (items.length === 0 || !items.some(item => (item.cantidad ?? 0) > 0)) {
+      this.snackbarService.show('Debe seleccionar al menos un item con cantidad mayor a cero.', 'warning');
+      return false;
+    }
+    return true;
   }
 
   private lockBodyScroll() {

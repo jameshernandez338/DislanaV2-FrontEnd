@@ -65,3 +65,13 @@ export interface PaymentResponse {
   message: string;
   amount: number;
 }
+
+export interface QuoteDetailItem {
+  codigo: string;
+  separados: number;
+  calidad: string;
+  imagen: string;
+  cantidad: number;
+  precioTotal: number;
+  cotizar?: boolean;
+}

@@ -475,7 +475,7 @@
               <span class="text-right">Valor</span>
             </div>
 
-            @for (row of quoteDetailRows; track row.documento + row.codigo + row.calidad + row.separados) {
+            @for (row of quoteDetailRows; track row.codigo + row.calidad + row.separados) {
               <div class="grid grid-cols-[0.9fr_1fr_0.9fr_1fr_1fr] items-center border-t border-slate-200 px-4 py-3 text-sm text-slate-700 even:bg-slate-50/70">
                 <span>{{ row.calidad }}</span>
                 <span>{{ formatNumber(row.separados) }}</span>
@@ -496,7 +496,7 @@
           <div class="mt-6 flex justify-end">
             <button
               type="button"
-              (click)="closeQuoteDetailModal()"
+              (click)="pedirFromDetail()"
               class="inline-flex min-w-48 items-center justify-center rounded-none bg-[#1e2230] px-6 py-3 text-base font-semibold text-white transition hover:bg-[#151925]"
             >
               Pedir
