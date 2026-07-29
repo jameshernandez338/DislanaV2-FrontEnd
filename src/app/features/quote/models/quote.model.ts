@@ -75,3 +75,9 @@ export interface QuoteDetailItem {
   precioTotal: number;
   cotizar?: boolean;
 }
+
+export interface CustomerAddressDto {
+  code: string;
+  city: string;
+  address: string;
+}

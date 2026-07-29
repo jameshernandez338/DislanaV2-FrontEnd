@@ -12,7 +12,9 @@ import { NumericInputDirective } from '@shared/directives/numeric-input.directiv
 import { AppCurrencyPipe } from '@shared/pipes/app-currency.pipe';
 import { AppDatePipe } from '@shared/pipes/app-date.pipe';
 import { NumberFormatService } from '@shared/services/number-format.service';
+import { CustomerAddressModalComponent } from '../../components/customer-address-modal/customer-address-modal.component';
 import {
+  CustomerAddressDto,
   PaymentItem,
   PaymentRequest,
   PaymentResponse,
@@ -26,7 +28,7 @@ import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-quote-list',
-  imports: [CommonModule, FormsModule, LucideAngularModule, LoadingSpinnerComponent, NumericInputDirective, AppDatePipe, AppCurrencyPipe],
+  imports: [CommonModule, FormsModule, LucideAngularModule, LoadingSpinnerComponent, NumericInputDirective, AppDatePipe, AppCurrencyPipe, CustomerAddressModalComponent],
   templateUrl: './quote-list.component.html'
 })
 export class QuoteListComponent implements OnInit, OnDestroy {
@@ -80,6 +82,9 @@ export class QuoteListComponent implements OnInit, OnDestroy {
   selectedQuoteDetailItem: QuoteItem | null = null;
   loadingQuoteDetail = false;
   quoteDetailRows: QuoteDetailItem[] = [];
+  showAddressModal = false;
+  selectedDeliveryAddress: CustomerAddressDto | null = null;
+  private pendingPaymentAction: (() => void) | null = null;
   icons = { PencilRuler, CreditCard, ChevronRight, CircleAlert, Printer, SquareMinus, X };
 
   constructor(
@@ -510,7 +515,39 @@ export class QuoteListComponent implements OnInit, OnDestroy {
     if (!this.validateSelectedItemsForPayment()) {
       return;
     }
+    this.openDeliveryAddressModal(() => this.executePayOnline());
+  }
 
+  async printReceipt() {
+    if (!this.validateSelectedItemsForPayment()) {
+      return;
+    }
+    this.openDeliveryAddressModal(() => this.executePrintReceipt());
+  }
+
+  onDeliveryAddressSelected(address: CustomerAddressDto): void {
+    this.selectedDeliveryAddress = address;
+    this.showAddressModal = false;
+    this.pendingPaymentAction?.();
+    this.pendingPaymentAction = null;
+  }
+
+  onDeliveryAddressCancelled(): void {
+    this.showAddressModal = false;
+    this.pendingPaymentAction = null;
+  }
+
+  ngOnDestroy(): void {
+    this.unlockBodyScroll();
+  }
+
+  private openDeliveryAddressModal(onConfirm: () => void): void {
+    this.selectedDeliveryAddress = null;
+    this.pendingPaymentAction = onConfirm;
+    this.showAddressModal = true;
+  }
+
+  private executePayOnline(): void {
     if (this.creatingPayment) {
       return;
     }
@@ -536,11 +573,7 @@ export class QuoteListComponent implements OnInit, OnDestroy {
       });
   }
 
-  async printReceipt() {
-    if (!this.validateSelectedItemsForPayment()) {
-      return;
-    }
-
+  private async executePrintReceipt(): Promise<void> {
     if (this.printingReceipt) {
       return;
     }
@@ -578,10 +611,6 @@ export class QuoteListComponent implements OnInit, OnDestroy {
           this.snackbarService.show('No fue posible preparar el recibo para impresion.', 'error');
         }
       });
-  }
-
-  ngOnDestroy(): void {
-    this.unlockBodyScroll();
   }
 
   private validateSelectedItemsForPayment(): boolean {

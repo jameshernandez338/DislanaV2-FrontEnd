@@ -508,4 +508,10 @@
   </div>
 }
 
+<app-customer-address-modal
+  [show]="showAddressModal"
+  (addressSelected)="onDeliveryAddressSelected($event)"
+  (cancelled)="onDeliveryAddressCancelled()"
+></app-customer-address-modal>
+
 <app-loading-spinner [show]="loading" message="Cargando lista de cotizacion..."></app-loading-spinner>

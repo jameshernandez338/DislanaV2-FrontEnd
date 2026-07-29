@@ -1,0 +1,83 @@
+@if (show) {
+  <div class="fixed inset-0 z-[90] flex items-start justify-center overflow-y-auto p-4 pt-12">
+    <div
+      class="absolute inset-0 bg-black/45 backdrop-blur-[1px]"
+      (click)="onCancel()"
+    ></div>
+
+    <section class="relative z-[91] w-full max-w-2xl overflow-hidden border border-slate-200 bg-white shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+        <h2 class="text-lg font-semibold tracking-[-0.03em] text-[#0f1a2c]">Dirección de entrega</h2>
+        <button
+          type="button"
+          (click)="onCancel()"
+          class="app-icon-button h-9 w-9"
+          aria-label="Cerrar"
+        >
+          <lucide-icon [name]="icons.X" class="h-4 w-4"></lucide-icon>
+        </button>
+      </div>
+
+      <div class="p-5">
+        @if (loading) {
+          <div class="flex items-center justify-center gap-3 py-10 text-slate-500">
+            <span class="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-slate-600"></span>
+            <span class="text-sm">Cargando direcciones...</span>
+          </div>
+        } @else if (loadFailed) {
+          <p class="py-8 text-center text-sm text-red-500">
+            No fue posible cargar las direcciones de entrega.
+          </p>
+        } @else if (addresses.length === 0) {
+          <p class="py-8 text-center text-sm text-slate-500">
+            No hay direcciones de entrega disponibles.
+          </p>
+        } @else {
+          <p class="mb-4 text-sm text-slate-500">Selecciona una dirección para continuar con el pedido.</p>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            @for (addr of addresses; track $index) {
+              <button
+                type="button"
+                (click)="selectAddress(addr)"
+                [class]="selectedAddress === addr
+                  ? 'flex flex-col gap-1.5 border-2 border-[#1e2230] bg-[#1e2230] p-4 text-left transition-all'
+                  : 'flex flex-col gap-1.5 border-2 border-slate-200 bg-white p-4 text-left transition-all hover:border-slate-400 hover:bg-slate-50'"
+              >
+                <span
+                  [class]="selectedAddress === addr
+                    ? 'text-xs font-semibold uppercase tracking-[0.12em] text-slate-300'
+                    : 'text-xs font-semibold uppercase tracking-[0.12em] text-slate-400'"
+                >{{ addr.city }}</span>
+                <span
+                  [class]="selectedAddress === addr
+                    ? 'text-sm font-medium leading-snug text-white'
+                    : 'text-sm font-medium leading-snug text-slate-700'"
+                >{{ addr.address }}</span>
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      @if (!loading && !loadFailed && addresses.length > 0) {
+        <div class="flex items-center justify-end gap-3 border-t border-slate-200 px-5 py-4">
+          <button
+            type="button"
+            (click)="onCancel()"
+            class="px-5 py-2.5 text-sm font-semibold text-slate-700 border border-slate-200 transition hover:bg-slate-50"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            (click)="confirm()"
+            [disabled]="!selectedAddress"
+            class="min-w-36 px-5 py-2.5 text-sm font-semibold text-white bg-[#1e2230] transition hover:bg-[#151925] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Confirmar
+          </button>
+        </div>
+      }
+    </section>
+  </div>
+}

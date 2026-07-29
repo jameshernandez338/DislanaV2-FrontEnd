@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AppConfigService } from '../config/app-config.service';
 import {
+  CustomerAddressDto,
   PaymentRequest,
   PaymentResponse,
   QuoteCustomerBalanceDetail,
@@ -35,6 +36,10 @@ export class QuoteService {
     return this.http.get<QuoteCustomerBalanceDetail[]>(`${this.apiUrl}/customer-balance`, {
       params: { type }
     });
+  }
+
+  getCustomerAddresses(): Observable<CustomerAddressDto[]> {
+    return this.http.get<CustomerAddressDto[]>(`${this.apiUrl}/customer-address`);
   }
 
   getQuoteDetail(item: string): Observable<QuoteDetailItem[]> {
