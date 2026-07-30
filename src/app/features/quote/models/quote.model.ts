@@ -49,6 +49,7 @@ export interface PaymentItem {
 export interface PaymentRequest {
   ValorTotal: number;
   Items: PaymentItem[];
+  DireccionEntrega: string;
 }
 
 export interface WompiPayment {

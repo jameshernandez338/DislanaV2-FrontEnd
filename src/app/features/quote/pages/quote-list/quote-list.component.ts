@@ -636,7 +636,8 @@ export class QuoteListComponent implements OnInit, OnDestroy {
       Items: [
         ...this.buildPaymentDetailItems(),
         ...this.buildSelectedQuoteItems()
-      ]
+      ],
+      DireccionEntrega: this.selectedDeliveryAddress?.address || ''
     };
   }
 

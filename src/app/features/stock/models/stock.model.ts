@@ -16,4 +16,5 @@ export interface InventoryStatementItem {
   calidadLote: string;
   precioTotal: number;
   imagen: string;
+  estado: string;
 }

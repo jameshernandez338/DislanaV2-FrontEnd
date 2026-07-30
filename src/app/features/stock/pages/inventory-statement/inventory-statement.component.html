@@ -1,4 +1,4 @@
-<div class="mx-auto w-full max-w-[1280px] px-4 py-6 md:px-6 md:py-8">
+<div class="mx-auto w-full max-w-[1290px] px-4 py-6 md:px-6 md:py-8">
   <div class="mb-8 flex flex-col gap-3">
     <h1 class="text-[clamp(1.7rem,4vw,1.7rem)] font-semibold tracking-[-0.04em] text-[#0f1a2c]">Extracto Inventario</h1>
   </div>
@@ -27,7 +27,12 @@
                   <th class="whitespace-nowrap px-3 py-2.5 font-semibold">Descripcion</th>
                   <th class="whitespace-nowrap px-3 py-2.5 font-semibold text-right">Cantidad</th>
                   <th class="whitespace-nowrap px-3 py-2.5 font-semibold text-right">Saldo pendiente</th>
-                  <th class="whitespace-nowrap px-3 py-2.5 font-semibold">Calidad/Lote</th>
+                  @if (group === 'PEDIDOS PENDIENTES') {
+                    <th class="whitespace-nowrap px-3 py-2.5 font-semibold text-center md:px-4">Linea</th>
+                    <th class="whitespace-nowrap px-3 py-2.5 font-semibold text-center md:px-4">Estado</th>
+                  }@else{
+                    <th class="whitespace-nowrap px-3 py-2.5 font-semibold">Calidad/Lote</th>
+                  }
                   <th class="whitespace-nowrap px-3 py-2.5 font-semibold text-right md:px-4">Precio total</th>
                   @if (group === 'PEDIDOS PENDIENTES') {
                     <th class="whitespace-nowrap px-3 py-2.5 font-semibold text-center md:px-4"></th>
@@ -51,7 +56,21 @@
                     <td class="whitespace-nowrap px-3 py-2">{{ row.descripcion }}</td>
                     <td class="whitespace-nowrap px-3 py-2 text-right">{{ formatNumber(row.cantidad) }}</td>
                     <td class="whitespace-nowrap px-3 py-2 text-right">{{ formatNumber(row.saldoPendiente) }}</td>
-                    <td class="whitespace-nowrap px-3 py-2">{{ row.calidadLote || '-' }}</td>
+                    @if (group === 'PEDIDOS PENDIENTES') {
+                      <td class="whitespace-nowrap px-3 py-2">{{ row.calidadLote || '-' }}</td>
+                      <td class="whitespace-nowrap px-3 py-2 text-center">
+                        @if (row.estado) {
+                          <span [class]="'inline-flex items-center rounded-full px-2.5 py-0.5 text-[0.72rem] font-semibold ' + getEstadoBadgeClass(row.estado)">
+                            {{ row.estado }}
+                          </span>
+                        } @else {
+                          <span class="text-slate-400">-</span>
+                        }
+                      </td>
+                    }
+                    @else{
+                      <td class="whitespace-nowrap px-3 py-2">{{ row.calidadLote || '-' }}</td>
+                    }
                     <td class="whitespace-nowrap px-3 py-2 text-right font-semibold text-slate-900 md:px-4">
                       {{ formatCurrency(row.precioTotal) }}
                     </td>
