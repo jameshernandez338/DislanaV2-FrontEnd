@@ -34,7 +34,7 @@
                     <th class="whitespace-nowrap px-3 py-2.5 font-semibold">Calidad/Lote</th>
                   }
                   <th class="whitespace-nowrap px-3 py-2.5 font-semibold text-right md:px-4">Precio total</th>
-                  @if (group === 'PEDIDOS PENDIENTES') {
+                  @if (group == 'ULTIMOS PEDIDOS') {
                     <th class="whitespace-nowrap px-3 py-2.5 font-semibold text-center md:px-4"></th>
                   }
                 </tr>
@@ -74,7 +74,7 @@
                     <td class="whitespace-nowrap px-3 py-2 text-right font-semibold text-slate-900 md:px-4">
                       {{ formatCurrency(row.precioTotal) }}
                     </td>
-                    @if (group === 'PEDIDOS PENDIENTES') {
+                    @if (group !== 'ULTIMOS PEDIDOS') {
                       <td class="whitespace-nowrap px-3 py-2 text-center md:px-4">
                         <button
                           type="button"

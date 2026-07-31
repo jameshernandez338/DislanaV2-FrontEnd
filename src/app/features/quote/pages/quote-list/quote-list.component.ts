@@ -123,7 +123,7 @@ export class QuoteListComponent implements OnInit, OnDestroy {
   }
 
   isAnticipoItem(item: QuoteItem): boolean {
-    return !this.shouldShowDetailAction(item) && item.grupo === 'PEDIDOS PENDIENTES';
+    return !this.shouldShowDetailAction(item) && item.grupo === 'PENDIENTES POR PRODUCIR';
   }
 
   getItemKey(item: QuoteItem): string {

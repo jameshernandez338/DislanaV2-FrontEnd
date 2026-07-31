@@ -22,8 +22,8 @@ export class InventoryStatementComponent implements OnInit {
 
   readonly groups = [
     'PEDIDOS PENDIENTES',
-    'PENDIENTES POR FACTURAR',
-    'PENDIENTES POR DESPACHAR'
+    'BODEGA VIRTUAL',
+    'PENDIENTES POR FACTURAR'
   ];
 
   readonly icons = { Trash2 };
