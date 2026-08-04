@@ -12,13 +12,13 @@ import { NumericInputDirective } from '@shared/directives/numeric-input.directiv
 import { NumberFormatService } from '@shared/services/number-format.service';
 import { CustomerAddressModalComponent } from '../../components/customer-address-modal/customer-address-modal.component';
 import { BalanceDetailModalComponent } from '../../components/balance-detail-modal/balance-detail-modal.component';
+import { QuoteDetailModalComponent, PedirResult } from '../../components/quote-detail-modal/quote-detail-modal.component';
 import {
   CustomerAddressDto,
   PaymentItem,
   PaymentRequest,
   PaymentResponse,
   QuoteCustomerTaxes,
-  QuoteDetailItem,
   QuoteItem,
   WompiPayment
 } from '../../models/quote.model';
@@ -26,7 +26,7 @@ import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-quote-list',
-  imports: [CommonModule, FormsModule, LucideAngularModule, LoadingSpinnerComponent, NumericInputDirective, CustomerAddressModalComponent, BalanceDetailModalComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, LoadingSpinnerComponent, NumericInputDirective, CustomerAddressModalComponent, BalanceDetailModalComponent, QuoteDetailModalComponent],
   templateUrl: './quote-list.component.html'
 })
 export class QuoteListComponent implements OnInit, OnDestroy {
@@ -64,6 +64,7 @@ export class QuoteListComponent implements OnInit, OnDestroy {
   showBalanceDetailModal = false;
   showBalanceDetailType: 'cartera' | 'apin' | 'saldoAFavor' = 'cartera';
   showQuoteDetailModal = false;
+  selectedQuoteDetailItem: QuoteItem | null = null;
   showCupoTooltip = false;
   showAnticipoTooltipKey = '';
   anticipoTooltipPosition = { top: 0, right: 0 };
@@ -74,9 +75,6 @@ export class QuoteListComponent implements OnInit, OnDestroy {
   abonoInput = '';
   isEditingAbono = false;
 
-  selectedQuoteDetailItem: QuoteItem | null = null;
-  loadingQuoteDetail = false;
-  quoteDetailRows: QuoteDetailItem[] = [];
   showAddressModal = false;
   selectedDeliveryAddress: CustomerAddressDto | null = null;
   private pendingPaymentAction: (() => void) | null = null;
@@ -302,37 +300,27 @@ export class QuoteListComponent implements OnInit, OnDestroy {
 
   openDetail(item: QuoteItem) {
     this.selectedQuoteDetailItem = item;
-    this.quoteDetailRows = [];
-    this.loadingQuoteDetail = true;
     this.showQuoteDetailModal = true;
-
-    this.quoteService.getQuoteDetail(item.codigo)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => {
-          this.loadingQuoteDetail = false;
-        })
-      )
-      .subscribe({
-        next: (rows) => {
-          this.quoteDetailRows = rows;
-        },
-        error: (error) => {
-          console.error('No se pudo cargar el detalle de la cotizacion.', error);
-          this.quoteDetailRows = [];
-          this.snackbarService.show('No fue posible cargar el detalle de la cotizacion.', 'error');
-        }
-      });
   }
 
   closeQuoteDetailModal() {
     this.showQuoteDetailModal = false;
     this.selectedQuoteDetailItem = null;
-    this.loadingQuoteDetail = false;
-    this.quoteDetailRows = [];
   }
 
-  onCotizarChange(checked: boolean, item: QuoteDetailItem) {
+  onPedirFromDetail(result: PedirResult) {
+    if (this.selectedQuoteDetailItem) {
+      this.selectedQuoteDetailItem.cotizar = result.cotizar;
+      if (result.cotizar) {
+        this.selectedQuoteDetailItem.cantidad = result.cantidad;
+        this.selectedQuoteDetailItem.precioTotal = result.precioTotal;
+      }
+      this.quoteItems.update(items => [...items]);
+    }
+    this.closeQuoteDetailModal();
+  }
+
+  onCotizarChange(checked: boolean, item: QuoteItem) {
     item.cotizar = checked;
     this.quoteItems.update(items => [...items]);
 
@@ -340,21 +328,6 @@ export class QuoteListComponent implements OnInit, OnDestroy {
       this.showPaymentDrawer = false;
       this.unlockBodyScroll();
     }
-  }
-
-  pedirFromDetail() {
-    if (this.selectedQuoteDetailItem) {
-      const selectedRows = this.quoteDetailRows.filter(r => r.cotizar);
-      if (selectedRows.length > 0) {
-        this.selectedQuoteDetailItem.cotizar = true;
-        this.selectedQuoteDetailItem.cantidad = selectedRows.reduce((sum, r) => sum + (r.cantidad ?? 0), 0);
-        this.selectedQuoteDetailItem.precioTotal = selectedRows.reduce((sum, r) => sum + (r.precioTotal ?? 0), 0);
-      } else {
-        this.selectedQuoteDetailItem.cotizar = false;
-      }
-      this.quoteItems.update(items => [...items]);
-    }
-    this.closeQuoteDetailModal();
   }
 
   closePaymentDetail() {

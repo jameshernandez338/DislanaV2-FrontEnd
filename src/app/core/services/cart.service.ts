@@ -14,6 +14,7 @@ export interface CartItem {
   codigoItem: string;
   name: string;
   image: string;
+  available: number;
   quantityA: number;
   quantityB: number;
   unitPriceA: number;

@@ -152,10 +152,28 @@ export class CartPageComponent implements OnInit, OnDestroy {
     this.snackbarService.show('Producto eliminado del carrito.', 'info');
   }
 
-  placeOrder() {
+  async placeOrder() {
     if (this.cartItems.length === 0) {
       this.snackbarService.show('No hay productos en el carrito.', 'warning');
       return;
+    }
+
+    const hasOutOfStock = this.cartItems.some((item) => item.available === 0);
+
+    if (hasOutOfStock) {
+      const result = await Swal.fire({
+        title: 'Productos agotados',
+        text: 'Se están ingresando productos Agotados, sujetos a disponibilidad de lote mínimo y condiciones de producción y anticipos para productos de No Linea.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Continuar',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true
+      });
+
+      if (!result.isConfirmed) {
+        return;
+      }
     }
 
     const payload: OrderPayload = {

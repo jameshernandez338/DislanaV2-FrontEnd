@@ -377,78 +377,12 @@
   (closed)="closeBalanceDetailModal()"
 ></app-balance-detail-modal>
 
-@if (showQuoteDetailModal && selectedQuoteDetailItem) {
-  <div class="fixed inset-0 z-[70] flex items-start justify-center overflow-y-auto p-3 pt-8 sm:p-6 sm:pt-10">
-    <div
-      class="absolute inset-0 bg-black/45 backdrop-blur-[1px]"
-      (click)="closeQuoteDetailModal()"
-    ></div>
-
-    <section class="relative z-[71] w-full max-w-4xl overflow-hidden border border-slate-200 bg-white shadow-2xl">
-      <div class="flex justify-end px-4 py-3 sm:px-5">
-        <button
-          type="button"
-          (click)="closeQuoteDetailModal()"
-          class="app-icon-button h-10 w-10"
-          aria-label="Cerrar modal"
-        >
-          <lucide-icon [name]="icons.X" class="h-5 w-5"></lucide-icon>
-        </button>
-      </div>
-
-      <div class="grid gap-6 px-4 pb-5 sm:grid-cols-[280px_minmax(0,1fr)] sm:px-6 sm:pb-6">
-        <div class="overflow-hidden border border-slate-200 bg-slate-50">
-          <img
-            [src]="getImageUrl(selectedQuoteDetailItem)"
-            [alt]="selectedQuoteDetailItem.descripcion"
-            class="h-full min-h-[240px] w-full object-cover"
-          />
-        </div>
-
-        <div class="min-w-0">
-          <h2 class="text-2xl font-semibold tracking-[-0.04em] text-[#0f1a2c]">{{ selectedQuoteDetailItem.codigo }}</h2>
-
-          <div class="mt-3 overflow-hidden border border-slate-200">
-            <div class="grid grid-cols-[0.9fr_1fr_0.9fr_1fr_1fr] bg-white px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-              <span>Calidad</span>
-              <span>Separados</span>
-              <span class="text-center">Cotizar</span>
-              <span>Cantidad</span>
-              <span class="text-right">Valor</span>
-            </div>
-
-            @for (row of quoteDetailRows; track row.codigo + row.calidad + row.separados) {
-              <div class="grid grid-cols-[0.9fr_1fr_0.9fr_1fr_1fr] items-center border-t border-slate-200 px-4 py-3 text-sm text-slate-700 even:bg-slate-50/70">
-                <span>{{ row.calidad }}</span>
-                <span>{{ formatNumber(row.separados) }}</span>
-                <span class="flex justify-center">
-                  <input
-                    type="checkbox"
-                    [(ngModel)]="row.cotizar"
-                    (ngModelChange)="onCotizarChange($event, row)"
-                    class="app-checkbox"
-                  />
-                </span>
-                <span>{{ formatNumber(row.cantidad) }}</span>
-                <span class="text-right font-medium text-slate-900">{{ formatCurrency(row.precioTotal) }}</span>
-              </div>
-            }
-          </div>
-
-          <div class="mt-6 flex justify-end">
-            <button
-              type="button"
-              (click)="pedirFromDetail()"
-              class="inline-flex min-w-48 items-center justify-center rounded-none bg-[#1e2230] px-6 py-3 text-base font-semibold text-white transition hover:bg-[#151925]"
-            >
-              Pedir
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
-}
+<app-quote-detail-modal
+  [show]="showQuoteDetailModal"
+  [item]="selectedQuoteDetailItem"
+  (closed)="closeQuoteDetailModal()"
+  (confirmed)="onPedirFromDetail($event)"
+></app-quote-detail-modal>
 
 <app-customer-address-modal
   [show]="showAddressModal"

@@ -198,6 +198,7 @@ export class ProductDetailComponent implements OnInit {
       codigoItem: this.product.codeItem,
       name: this.product.codeItem,
       image: this.product.imagen,
+      available: this.product.calidad1,
       quantityA: this.quantityA || 0,
       quantityB: this.quantityB || 0,
       unitPriceA: this.product.pvpDescuento || 0,
