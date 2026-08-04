@@ -102,6 +102,9 @@
                 <a [routerLink]="getProductRoute(item)" class="block">
                   <img [src]="getProductImage(item)" [alt]="item.descripcionItem" class="w-full h-72 object-cover" />
                 </a>
+                @if (item.disponible === 0) {
+                  <span class="absolute top-2 left-2 bg-red-600 text-white text-xs font-semibold px-2 py-1 tracking-wide pointer-events-none">AGOTADO</span>
+                }
                 <a
                   [routerLink]="getProductRoute(item)"
                   class="absolute inset-x-0 bottom-0 bg-white/80 py-3 text-center opacity-0 transition group-hover:opacity-100"

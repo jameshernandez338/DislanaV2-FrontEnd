@@ -47,9 +47,9 @@ export class InventoryStatementComponent implements OnInit {
 
   getActionLabel(group: string): string {
     switch (group) {
-      case 'PENDIENTES POR FACTURAR':
+      case 'PEDIDOS PENDIENTES':
         return 'Cotizar';
-      case 'PENDIENTES POR DESPACHAR':
+      case 'BODEGA VIRTUAL':
         return 'Cotizar';
       default:
         return 'Continuar';
@@ -58,10 +58,10 @@ export class InventoryStatementComponent implements OnInit {
 
   onGroupAction(group: string) {
     switch (group) {
-      case 'PENDIENTES POR FACTURAR':
+      case 'PEDIDOS PENDIENTES':
         this.handlePendingInvoicesAction();
         return;
-      case 'PENDIENTES POR DESPACHAR':
+      case 'BODEGA VIRTUAL':
         this.handlePendingDispatchAction();
         return;
       default:
@@ -87,10 +87,10 @@ export class InventoryStatementComponent implements OnInit {
 
   getEstadoBadgeClass(estado: string): string {
     const normalized = (estado || '').trim().toUpperCase();
-    if (normalized.includes('ANTICIPO')) {
+    if (normalized === 'PEND ANTICIPO') {
       return 'bg-amber-100 text-amber-700 border border-amber-200';
     }
-    if (normalized === 'APROBADO') {
+    if (normalized === 'CON ANTICIPO') {
       return 'bg-emerald-100 text-emerald-700 border border-emerald-200';
     }
     if (normalized.includes('CAMINO')) {

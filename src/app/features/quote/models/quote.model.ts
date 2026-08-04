@@ -13,6 +13,7 @@ export interface QuoteItem {
   cantidad: number;
   precioTotal: number;
   precioAnticipo: number;
+  estado: string;
 }
 
 export interface QuoteCustomerTaxes {
