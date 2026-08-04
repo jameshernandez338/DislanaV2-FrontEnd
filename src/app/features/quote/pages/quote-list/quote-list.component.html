@@ -371,73 +371,11 @@
   </aside>
 }
 
-@if (showBalanceDetailModal) {
-  <div class="fixed inset-0 z-[70] flex items-start justify-center overflow-y-auto p-3 pt-8 sm:p-6 sm:pt-10">
-    <div
-      class="absolute inset-0 bg-black/45 backdrop-blur-[1px]"
-      (click)="closeBalanceDetailModal()"
-    ></div>
-
-    <section class="relative z-[71] w-full max-w-3xl overflow-hidden border border-slate-200 bg-white shadow-2xl">
-      <div class="flex items-start justify-between gap-4 border-b border-slate-200 px-5 py-5 sm:px-7">
-        <div>
-          <h2 class="text-2xl font-bold tracking-[-0.04em] text-[#0f1a2c]">{{ selectedBalanceDetailTitle }}</h2>
-          <p class="mt-1 text-sm text-slate-500">Detalle de movimientos asociados al indicador seleccionado.</p>
-        </div>
-
-        <button
-          type="button"
-          (click)="closeBalanceDetailModal()"
-          class="app-icon-button h-10 w-10"
-          aria-label="Cerrar modal"
-        >
-          <lucide-icon [name]="icons.X" class="h-5 w-5"></lucide-icon>
-        </button>
-      </div>
-
-      <div class="px-5 py-6 sm:px-7">
-        <div class="overflow-hidden border border-slate-200">
-          <div class="grid grid-cols-[1.6fr_1fr_1fr_1fr_1fr] bg-slate-50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-            <span>Observacion</span>
-            <span>Tipo</span>
-            <span>Numero</span>
-            <span>Fecha</span>
-            <span class="text-right">Valor</span>
-          </div>
-
-          @if (loadingBalanceDetail) {
-            <div class="border-t border-slate-200 px-4 py-6 text-sm text-slate-500">
-              Consultando detalle...
-            </div>
-          } @else if (balanceDetailLoadFailed) {
-            <div class="border-t border-slate-200 px-4 py-6 text-sm text-rose-600">
-              No fue posible cargar el detalle.
-            </div>
-          } @else if (balanceDetailRows.length > 0) {
-            @for (row of balanceDetailRows; track row.observacion + row.numero + row.fecha + row.valor) {
-              <div
-                class="grid grid-cols-[1.6fr_1fr_1fr_1fr_1fr] items-center border-t border-slate-200 px-4 py-3 text-sm even:bg-slate-50/70"
-                [ngClass]="selectedBalanceDetailType === 'cartera' && row.observacion === 'Cartera Vencida'
-                  ? 'text-rose-600'
-                  : 'text-slate-700'"
-              >
-                <span>{{ row.observacion }}</span>
-                <span>{{ row.tipo }}</span>
-                <span>{{ row.numero }}</span>
-                <span>{{ row.fecha | appDate }}</span>
-                <span class="text-right">{{ row.valor | appCurrency }}</span>
-              </div>
-            }
-          } @else {
-            <div class="border-t border-slate-200 px-4 py-6 text-sm text-slate-500">
-              No hay detalle disponible para este indicador.
-            </div>
-          }
-        </div>
-      </div>
-    </section>
-  </div>
-}
+<app-balance-detail-modal
+  [show]="showBalanceDetailModal"
+  [type]="showBalanceDetailType"
+  (closed)="closeBalanceDetailModal()"
+></app-balance-detail-modal>
 
 @if (showQuoteDetailModal && selectedQuoteDetailItem) {
   <div class="fixed inset-0 z-[70] flex items-start justify-center overflow-y-auto p-3 pt-8 sm:p-6 sm:pt-10">

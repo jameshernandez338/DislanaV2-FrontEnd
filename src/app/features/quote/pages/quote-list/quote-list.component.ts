@@ -9,16 +9,14 @@ import { QuoteService } from '@core/services/quote.service';
 import { SnackbarService } from '@core/services/snackbar.service';
 import { LoadingSpinnerComponent } from '@shared/components/loading-spinner/loading-spinner.component';
 import { NumericInputDirective } from '@shared/directives/numeric-input.directive';
-import { AppCurrencyPipe } from '@shared/pipes/app-currency.pipe';
-import { AppDatePipe } from '@shared/pipes/app-date.pipe';
 import { NumberFormatService } from '@shared/services/number-format.service';
 import { CustomerAddressModalComponent } from '../../components/customer-address-modal/customer-address-modal.component';
+import { BalanceDetailModalComponent } from '../../components/balance-detail-modal/balance-detail-modal.component';
 import {
   CustomerAddressDto,
   PaymentItem,
   PaymentRequest,
   PaymentResponse,
-  QuoteCustomerBalanceDetail,
   QuoteCustomerTaxes,
   QuoteDetailItem,
   QuoteItem,
@@ -28,7 +26,7 @@ import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-quote-list',
-  imports: [CommonModule, FormsModule, LucideAngularModule, LoadingSpinnerComponent, NumericInputDirective, AppDatePipe, AppCurrencyPipe, CustomerAddressModalComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, LoadingSpinnerComponent, NumericInputDirective, CustomerAddressModalComponent, BalanceDetailModalComponent],
   templateUrl: './quote-list.component.html'
 })
 export class QuoteListComponent implements OnInit, OnDestroy {
@@ -64,6 +62,7 @@ export class QuoteListComponent implements OnInit, OnDestroy {
   customerTaxes = signal<QuoteCustomerTaxes | null>(null);
   showPaymentDrawer = false;
   showBalanceDetailModal = false;
+  showBalanceDetailType: 'cartera' | 'apin' | 'saldoAFavor' = 'cartera';
   showQuoteDetailModal = false;
   showCupoTooltip = false;
   showAnticipoTooltipKey = '';
@@ -74,11 +73,7 @@ export class QuoteListComponent implements OnInit, OnDestroy {
   abonoAmount = signal(0);
   abonoInput = '';
   isEditingAbono = false;
-  loadingBalanceDetail = false;
-  balanceDetailLoadFailed = false;
-  selectedBalanceDetailType = '';
-  selectedBalanceDetailTitle = '';
-  balanceDetailRows: QuoteCustomerBalanceDetail[] = [];
+
   selectedQuoteDetailItem: QuoteItem | null = null;
   loadingQuoteDetail = false;
   quoteDetailRows: QuoteDetailItem[] = [];
@@ -373,46 +368,12 @@ export class QuoteListComponent implements OnInit, OnDestroy {
   }
 
   openBalanceDetail(type: 'cartera' | 'apin' | 'saldoAFavor') {
-    const titleMap: Record<typeof type, string> = {
-      cartera: 'Cartera Vencida',
-      apin: 'APIN',
-      saldoAFavor: 'Saldo a Favor'
-    };
-
-    this.selectedBalanceDetailType = type;
-    this.selectedBalanceDetailTitle = titleMap[type];
-    this.balanceDetailRows = [];
-    this.balanceDetailLoadFailed = false;
-    this.loadingBalanceDetail = true;
+    this.showBalanceDetailType = type;
     this.showBalanceDetailModal = true;
-
-    this.quoteService.getCustomerBalance(type)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        finalize(() => {
-          this.loadingBalanceDetail = false;
-        })
-      )
-      .subscribe({
-        next: (rows) => {
-          this.balanceDetailRows = rows;
-        },
-        error: (error) => {
-          console.error(`No se pudo cargar el detalle de ${type}.`, error);
-          this.balanceDetailRows = [];
-          this.balanceDetailLoadFailed = true;
-          this.snackbarService.show(`No fue posible cargar el detalle de ${titleMap[type]}.`, 'error');
-        }
-      });
   }
 
   closeBalanceDetailModal() {
     this.showBalanceDetailModal = false;
-    this.loadingBalanceDetail = false;
-    this.balanceDetailLoadFailed = false;
-    this.selectedBalanceDetailType = '';
-    this.selectedBalanceDetailTitle = '';
-    this.balanceDetailRows = [];
   }
 
   formatNumber(value: number): string {
